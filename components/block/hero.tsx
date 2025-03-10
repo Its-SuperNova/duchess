@@ -1,13 +1,13 @@
-"use client"
-import { FiSearch } from "react-icons/fi"
-import { IoFilter } from "react-icons/io5"
-import Image from "next/image"
-import Link from "next/link"
-import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay, Pagination } from "swiper/modules"
-import "swiper/css"
-import "swiper/css/pagination"
-import "swiper/css/autoplay"
+"use client";
+import { FiSearch } from "react-icons/fi";
+import { IoFilter } from "react-icons/io5";
+import Image from "next/image";
+import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/autoplay";
 
 const categories = [
   { name: "Cup Cake", image: "/images/categories/cupcake.png" },
@@ -17,39 +17,21 @@ const categories = [
   { name: "Pastry", image: "/images/categories/croissant.png" },
   { name: "Donuts", image: "/images/categories/pink-donut.png" },
   { name: "Chocolate", image: "/images/categories/chocolate-bar.png" },
-]
+];
 
-const banners = [
-  {
-    id: 1,
-    image: "/cookie-banner-mobile.png",
-    desktopImage:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/cookies%20offer-gVsY97iVCDkrq7i7UiQJr0Y7qYlCx3.png",
-    alt: "Special offer on chocolate chip cookies",
-    link: "/offers/cookies",
-  },
-  {
-    id: 2,
-    image: "/banner-cake.png",
-    desktopImage: "/banner-cake.png",
-    alt: "Celebrate with every slice - chocolate cake with strawberries",
-    link: "/offers/cakes",
-  },
-  {
-    id: 3,
-    image: "/banner-cupcakes.png",
-    desktopImage: "/banner-cupcakes.png",
-    alt: "Fluffy, frosted cupcakes with blackberries",
-    link: "/offers/cupcakes",
-  },
-  {
-    id: 4,
-    image: "/banner-cheesecakes.png",
-    desktopImage: "/banner-cheesecakes.png",
-    alt: "Classic Indian delights - mini cheesecakes",
-    link: "/offers/indian-sweets",
-  },
-]
+// New arrays for hero images
+const heroMobileImages = [
+  "/images/banner/hero/cake-mobile.png",
+  "/images/banner/hero/cookies-mobile.png",
+  "/images/banner/hero/cupcake-mobile.png",
+  "/images/banner/hero/sweets-mobile.png",
+];
+const heroDesktopImages = [
+  "/images/banner/hero/cake.png",
+  "/images/banner/hero/cookies.png",
+  "/images/banner/hero/cupcake.png",
+  "/images/banner/hero/sweets.png",
+];
 
 const Hero = () => {
   return (
@@ -84,7 +66,8 @@ const Hero = () => {
           pagination={{
             clickable: true,
             bulletClass: "swiper-pagination-bullet white-bullet",
-            bulletActiveClass: "swiper-pagination-bullet-active white-bullet-active",
+            bulletActiveClass:
+              "swiper-pagination-bullet-active white-bullet-active",
           }}
           speed={800}
           spaceBetween={20}
@@ -94,35 +77,35 @@ const Hero = () => {
           loop={true}
           className="rounded-[20px] overflow-hidden"
         >
-          {banners.map((banner) => (
-            <SwiperSlide key={banner.id}>
-              <Link href={banner.link} className="block">
-                {/* Mobile and Tablet Banner */}
-                <div className="relative w-full block lg:hidden">
-                  <Image
-                    src={banner.image || "/placeholder.svg"}
-                    alt={banner.alt}
-                    width={1080}
-                    height={400}
-                    className="w-full h-auto rounded-[20px]"
-                    quality={100}
-                    priority={banner.id === 1}
-                  />
-                </div>
-
-                {/* Desktop Banner */}
-                <div className="relative w-full hidden lg:block" style={{ aspectRatio: "1200 / 400" }}>
-                  <Image
-                    src={banner.desktopImage || "/placeholder.svg"}
-                    alt={banner.alt}
-                    width={1200}
-                    height={400}
-                    className="w-full h-auto rounded-[20px]"
-                    quality={100}
-                    priority={banner.id === 1}
-                  />
-                </div>
-              </Link>
+          {/* Mobile and Tablet Banners */}
+          {heroMobileImages.map((img, idx) => (
+            <SwiperSlide key={`mobile-${idx}`}>
+              <div className="relative w-full block lg:hidden">
+                <Image
+                  src={img}
+                  alt="Hero banner"
+                  width={1080}
+                  height={400}
+                  className="w-full h-auto rounded-[20px]"
+                  quality={100}
+                  priority={idx === 0}
+                />
+              </div>
+              {/* Desktop Banner */}
+              <div
+                className="relative w-full hidden lg:block"
+                style={{ aspectRatio: "1200 / 400" }}
+              >
+                <Image
+                  src={heroDesktopImages[idx]}
+                  alt="Hero banner"
+                  width={1200}
+                  height={400}
+                  className="w-full h-auto rounded-[20px]"
+                  quality={100}
+                  priority={idx === 0}
+                />
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -145,7 +128,10 @@ const Hero = () => {
             <div className="w-16 h-16 relative bg-white rounded-xl overflow-hidden flex items-center justify-center shadow-sm">
               <div className="absolute inset-0 overflow-hidden">
                 <Image
-                  src={category.image || `/placeholder.svg?height=96&width=96&text=${category.name}`}
+                  src={
+                    category.image ||
+                    `/placeholder.svg?height=96&width=96&text=${category.name}`
+                  }
                   alt={category.name}
                   width={96}
                   height={96}
@@ -165,7 +151,10 @@ const Hero = () => {
             <div className="w-20 lg:w-24 h-20 lg:h-24 relative bg-white rounded-xl overflow-hidden flex items-center justify-center shadow-sm">
               <div className="absolute inset-0 overflow-hidden">
                 <Image
-                  src={category.image || `/placeholder.svg?height=96&width=96&text=${category.name}`}
+                  src={
+                    category.image ||
+                    `/placeholder.svg?height=96&width=96&text=${category.name}`
+                  }
                   alt={category.name}
                   width={96}
                   height={96}
@@ -178,7 +167,7 @@ const Hero = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;
