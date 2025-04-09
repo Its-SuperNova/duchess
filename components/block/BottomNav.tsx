@@ -47,7 +47,7 @@ export default function BottomNav() {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 md:hidden bottom-nav">
+    <div className="fixed bottom-0 left-0 z-50 w-full h-20 md:hidden bottom-nav">
       {/* Blurred background */}
       <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800"></div>
 
@@ -63,17 +63,15 @@ export default function BottomNav() {
                 <Link href={item.href} className="flex flex-col items-center justify-center h-full w-full">
                   {item.isReactIcon ? (
                     <IconComponent
-                      size={24}
-                      className={isActive ? "text-[#361C1C] dark:text-[#361C1C]" : "text-gray-500 dark:text-gray-400"}
+                      size={28}
+                      className={isActive ? "text-primary" : "text-gray-500 dark:text-gray-400"}
                     />
                   ) : (
                     <IconComponent
-                      className={`w-6 h-6 ${
-                        isActive ? "text-[#361C1C] dark:text-[#361C1C]" : "text-gray-500 dark:text-gray-400"
-                      }`}
+                      className={`w-7 h-7 ${isActive ? "text-primary" : "text-gray-500 dark:text-gray-400"}`}
                     />
                   )}
-                  <span className="text-xs mt-1 font-medium">{item.name}</span>
+                  <span className={`text-sm mt-1 font-medium ${isActive ? "text-primary" : ""}`}>{item.name}</span>
                 </Link>
               </li>
             )

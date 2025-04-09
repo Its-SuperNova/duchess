@@ -82,13 +82,22 @@ export default function SearchPage() {
   return (
     <div className="bg-white min-h-screen pb-32">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white p-4 flex items-center border-b shadow-sm">
-        <Link href="/" className="mr-4">
-          <div className="bg-gray-100 p-2 rounded-full">
-            <ArrowLeft className="h-5 w-5" />
+      <div className="sticky top-0 z-10 bg-white px-4 h-[64px] flex items-center justify-between border-b shadow-sm">
+        <div className="flex items-center">
+          <Link href="/" className="mr-4">
+            <div className="bg-gray-100 p-2 rounded-full">
+              <ArrowLeft className="h-5 w-5" />
+            </div>
+          </Link>
+          <h1 className="text-xl font-semibold">Search</h1>
+        </div>
+
+        {/* Profile image on the right */}
+        <Link href="/profile">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-300">
+            <Image src="/profile-avatar.png" alt="Profile" width={32} height={32} className="object-cover" />
           </div>
         </Link>
-        <h1 className="text-xl font-semibold">Search</h1>
       </div>
 
       {/* Search Input */}

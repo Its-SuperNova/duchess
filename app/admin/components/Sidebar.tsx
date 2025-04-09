@@ -154,7 +154,7 @@ export default function Sidebar({ className, expanded = true, setExpanded, ...pr
 
   const SidebarContent = () => (
     <>
-      <div className="flex h-16 items-center justify-between border-b px-4">
+      <div className="flex h-20 items-center justify-between border-b px-4">
         <Link href="/admin" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-white">
             <Package className="h-4 w-4" />

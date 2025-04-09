@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Check,
@@ -18,13 +18,13 @@ import {
   Plus,
   CalendarIcon,
   ChevronRight,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+} from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { useState, useEffect } from "react"
+import { useToast } from "@/hooks/use-toast"
+import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogTrigger,
@@ -34,7 +34,7 @@ import {
   DialogClose,
   DialogDescription,
   DialogContent,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerClose,
@@ -43,9 +43,9 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
-import { format, addDays, startOfToday } from "date-fns";
+} from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
+import { format, addDays, startOfToday } from "date-fns"
 
 // Function to calculate delivery time based on stock status and location
 const calculateDeliveryTime = (stock: number, location: string) => {
@@ -55,51 +55,49 @@ const calculateDeliveryTime = (stock: number, location: string) => {
     Mumbai: 90,
     Bangalore: 75,
     Pune: 80,
-  };
+  }
 
   // Extract city from location
-  const city = location.split(",")[1]?.trim() || "New Delhi";
+  const city = location.split(",")[1]?.trim() || "New Delhi"
   // Get base delivery time for the city
-  const baseTime = (city in baseDeliveryTimes ? baseDeliveryTimes[city as keyof typeof baseDeliveryTimes] : 60); // Default to 60 minutes if city not found
+  const baseTime = city in baseDeliveryTimes ? baseDeliveryTimes[city as keyof typeof baseDeliveryTimes] : 60 // Default to 60 minutes if city not found
 
   // Add 4 hours (240 minutes) if product is out of stock
-  const additionalTime = stock === 0 ? 240 : 0;
+  const additionalTime = stock === 0 ? 240 : 0
 
   // Total delivery time in minutes
-  const totalMinutes = baseTime + additionalTime;
+  const totalMinutes = baseTime + additionalTime
 
   // Convert to hours and minutes
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
 
   // Format the time string
-  let timeString = "";
+  let timeString = ""
   if (hours > 0) {
-    timeString += `${hours} hr${hours > 1 ? "s" : ""}`;
+    timeString += `${hours} hr${hours > 1 ? "s" : ""}`
   }
   if (minutes > 0) {
-    timeString += `${hours > 0 ? " " : ""}${minutes} min${
-      minutes > 1 ? "s" : ""
-    }`;
+    timeString += `${hours > 0 ? " " : ""}${minutes} min${minutes > 1 ? "s" : ""}`
   }
 
   return {
     totalMinutes,
     timeString,
     isDelayed: stock === 0,
-  };
-};
+  }
+}
 
 // Hook to detect mobile
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-  return isMobile;
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
+  return isMobile
 }
 
 // AddressDrawer component
@@ -112,13 +110,13 @@ function AddressDrawer({
   showAddAddress,
   setShowAddAddress,
 }: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  addresses: { label: string; address: string }[];
-  selectedAddress: number;
-  setSelectedAddress: (index: number) => void;
-  showAddAddress: boolean;
-  setShowAddAddress: (show: boolean) => void;
+  open: boolean
+  setOpen: (open: boolean) => void
+  addresses: { label: string; address: string }[]
+  selectedAddress: number
+  setSelectedAddress: (index: number) => void
+  showAddAddress: boolean
+  setShowAddAddress: (show: boolean) => void
 }) {
   return (
     <DrawerContent className="max-h-[85vh]">
@@ -126,9 +124,7 @@ function AddressDrawer({
         <>
           <DrawerHeader>
             <DrawerTitle>Select Delivery Address</DrawerTitle>
-            <DrawerDescription>
-              Choose where you want your cake delivered
-            </DrawerDescription>
+            <DrawerDescription>Choose where you want your cake delivered</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 space-y-3 my-4">
             {addresses.map((address, index) => (
@@ -168,17 +164,11 @@ function AddressDrawer({
           <form className="space-y-3 px-4 my-4">
             <div className="relative">
               <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Label (e.g. Home, Work)"
-                className="bg-white text-sm pl-10"
-              />
+              <Input placeholder="Label (e.g. Home, Work)" className="bg-white text-sm pl-10" />
             </div>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Street, Area"
-                className="bg-white text-sm pl-10"
-              />
+              <Input placeholder="Street, Area" className="bg-white text-sm pl-10" />
             </div>
             <div className="relative">
               <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -212,7 +202,7 @@ function AddressDrawer({
         </>
       )}
     </DrawerContent>
-  );
+  )
 }
 
 // Simplified Delivery Date Picker (7 days only)
@@ -225,17 +215,17 @@ function DeliveryDatePicker({
   setSelectedTimeSlot,
   isMobile,
 }: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  selectedDate: Date | undefined;
-  setSelectedDate: (date: Date | undefined) => void;
-  selectedTimeSlot: string;
-  setSelectedTimeSlot: (slot: string) => void;
-  isMobile: boolean;
+  open: boolean
+  setOpen: (open: boolean) => void
+  selectedDate: Date | undefined
+  setSelectedDate: (date: Date | undefined) => void
+  selectedTimeSlot: string
+  setSelectedTimeSlot: (slot: string) => void
+  isMobile: boolean
 }) {
   // Generate next 7 days
-  const today = startOfToday();
-  const next7Days = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1));
+  const today = startOfToday()
+  const next7Days = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1))
 
   // Available time slots
   const timeSlots = {
@@ -243,12 +233,12 @@ function DeliveryDatePicker({
     afternoon: "12:00 PM - 3:00 PM",
     evening: "3:00 PM - 6:00 PM",
     night: "6:00 PM - 9:00 PM",
-  };
+  }
 
   // Function to handle save
   const handleSave = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const Content = () => (
     <>
@@ -260,10 +250,8 @@ function DeliveryDatePicker({
               key={index}
               onClick={() => setSelectedDate(date)}
               className={`py-3 px-2 rounded-lg text-sm transition-all flex flex-col items-center ${
-                selectedDate &&
-                format(selectedDate, "yyyy-MM-dd") ===
-                  format(date, "yyyy-MM-dd")
-                  ? "bg-black text-white"
+                selectedDate && format(selectedDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
+                  ? "bg-blue-500 text-white"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -281,9 +269,7 @@ function DeliveryDatePicker({
               key={key}
               onClick={() => setSelectedTimeSlot(key)}
               className={`py-3 px-4 rounded-lg text-sm transition-all ${
-                selectedTimeSlot === key
-                  ? "bg-black text-white"
-                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                selectedTimeSlot === key ? "bg-primary text-white" : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
               {value}
@@ -292,7 +278,7 @@ function DeliveryDatePicker({
         </div>
       </div>
     </>
-  );
+  )
 
   if (isMobile) {
     return (
@@ -300,23 +286,17 @@ function DeliveryDatePicker({
         <DrawerContent className="max-h-[90vh]">
           <DrawerHeader>
             <DrawerTitle>Schedule Delivery</DrawerTitle>
-            <DrawerDescription>
-              Select your preferred delivery date and time
-            </DrawerDescription>
+            <DrawerDescription>Select your preferred delivery date and time</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 py-2">
             <Content />
           </div>
           <DrawerFooter className="flex flex-row gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setOpen(false)}
-            >
+            <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button
-              className="flex-1 bg-black hover:bg-gray-900 text-white"
+              className="flex-1 bg-primary hover:bg-primary/90 text-white"
               onClick={handleSave}
               disabled={!selectedDate || !selectedTimeSlot}
             >
@@ -325,7 +305,7 @@ function DeliveryDatePicker({
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
-    );
+    )
   }
 
   return (
@@ -333,9 +313,7 @@ function DeliveryDatePicker({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Schedule Delivery</DialogTitle>
-          <DialogDescription>
-            Select your preferred delivery date and time
-          </DialogDescription>
+          <DialogDescription>Select your preferred delivery date and time</DialogDescription>
         </DialogHeader>
         <Content />
         <DialogFooter>
@@ -344,7 +322,7 @@ function DeliveryDatePicker({
           </DialogClose>
           <DialogClose asChild>
             <Button
-              className="bg-black hover:bg-gray-900 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
               onClick={handleSave}
               disabled={!selectedDate || !selectedTimeSlot}
             >
@@ -354,7 +332,7 @@ function DeliveryDatePicker({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 // Radio button for address selection
@@ -364,10 +342,10 @@ function AddressRadio({
   label,
   address,
 }: {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-  address: string;
+  checked: boolean
+  onChange: () => void
+  label: string
+  address: string
 }) {
   return (
     <label
@@ -388,38 +366,34 @@ function AddressRadio({
         <div className="text-sm text-gray-500">{address}</div>
       </div>
     </label>
-  );
+  )
 }
 
 export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
-  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<
-    "same-day" | "scheduled"
-  >("same-day");
-  const [selectedCustomizations, setSelectedCustomizations] = useState<
-    string[]
-  >([]);
-  const { toast } = useToast();
-  const [cakeText, setCakeText] = useState("");
-  const [messageCardText, setMessageCardText] = useState("");
-  const [openModal, setOpenModal] = useState<null | "text" | "card">(null);
-  const [tempCakeText, setTempCakeText] = useState("");
-  const [tempMessageCardText, setTempMessageCardText] = useState("");
-  const [dialogType, setDialogType] = useState<null | "text" | "card">(null);
-  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
-  const [showAddAddress, setShowAddAddress] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(0);
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("morning");
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<"same-day" | "scheduled">("same-day")
+  const [selectedCustomizations, setSelectedCustomizations] = useState<string[]>([])
+  const { toast } = useToast()
+  const [cakeText, setCakeText] = useState("")
+  const [messageCardText, setMessageCardText] = useState("")
+  const [openModal, setOpenModal] = useState<null | "text" | "card">(null)
+  const [tempCakeText, setTempCakeText] = useState("")
+  const [tempMessageCardText, setTempMessageCardText] = useState("")
+  const [dialogType, setDialogType] = useState<null | "text" | "card">(null)
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false)
+  const [showAddAddress, setShowAddAddress] = useState(false)
+  const [selectedAddress, setSelectedAddress] = useState(0)
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("morning")
 
   const addresses = [
     { label: "Home", address: "123 Main St, New Delhi, 110001" },
     { label: "Work", address: "456 Park Ave, Mumbai, 400001" },
     { label: "Parents", address: "789 Lake Rd, Bangalore, 560001" },
     { label: "Other", address: "101 Hilltop, Pune, 411001" },
-  ];
+  ]
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile()
 
   // Time slot display names
   const timeSlotNames = {
@@ -427,24 +401,22 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
     afternoon: "12:00 PM - 3:00 PM",
     evening: "3:00 PM - 6:00 PM",
     night: "6:00 PM - 9:00 PM",
-  };
+  }
 
   const toggleCustomization = (option: string) => {
     if (selectedCustomizations.includes(option)) {
-      setSelectedCustomizations(
-        selectedCustomizations.filter((item) => item !== option)
-      );
+      setSelectedCustomizations(selectedCustomizations.filter((item) => item !== option))
     } else {
-      setSelectedCustomizations([...selectedCustomizations, option]);
+      setSelectedCustomizations([...selectedCustomizations, option])
       if (option === "text") {
-        setTempCakeText(cakeText);
-        setOpenModal("text");
+        setTempCakeText(cakeText)
+        setOpenModal("text")
       } else if (option === "card") {
-        setTempMessageCardText(messageCardText);
-        setOpenModal("card");
+        setTempMessageCardText(messageCardText)
+        setOpenModal("card")
       }
     }
-  };
+  }
 
   const copyCouponCode = (code: string) => {
     navigator.clipboard
@@ -454,17 +426,17 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
           title: "Coupon copied",
           className: "bg-green-50 text-green-800 border-green-300 py-3",
           duration: 2000,
-        });
+        })
       })
       .catch((error) => {
-        console.error("Failed to copy code:", error);
+        console.error("Failed to copy code:", error)
         toast({
           title: "Failed to copy",
           variant: "destructive",
           duration: 2000,
-        });
-      });
-  };
+        })
+      })
+  }
 
   const getCustomizationOptions = () => [
     {
@@ -491,19 +463,19 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
       label: "Add message card",
       description: "Include a personalized message card",
     },
-  ];
+  ]
 
   // Handle delivery option change
   const handleDeliveryOptionChange = (option: "same-day" | "scheduled") => {
-    setSelectedDeliveryOption(option);
+    setSelectedDeliveryOption(option)
     if (option === "scheduled" && !selectedDate) {
-      setCalendarOpen(true);
+      setCalendarOpen(true)
     }
-  };
+  }
 
   // Generate next 7 days for quick selection
-  const today = startOfToday();
-  const next7Days = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1));
+  const today = startOfToday()
+  const next7Days = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1))
 
   return (
     <div className="px-0 md:px-8 mt-4 md:mt-0">
@@ -511,9 +483,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
         <CardContent className="grid gap-6 p-6">
           {/* Delivery Options - Enhanced with Calendar */}
           <div className="space-y-3">
-            <h3 className="text-base font-semibold text-gray-800">
-              Delivery Options
-            </h3>
+            <h3 className="text-base font-semibold text-gray-800">Delivery Options</h3>
 
             {/* Delivery Option Toggle */}
             <div className="flex gap-2 mt-2">
@@ -521,7 +491,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                 onClick={() => handleDeliveryOptionChange("same-day")}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all border ${
                   selectedDeliveryOption === "same-day"
-                    ? "bg-black text-white border-black"
+                    ? "bg-primary text-white border-primary"
                     : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100"
                 }`}
               >
@@ -531,7 +501,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                 onClick={() => handleDeliveryOptionChange("scheduled")}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all border ${
                   selectedDeliveryOption === "scheduled"
-                    ? "bg-black text-white border-black"
+                    ? "bg-primary text-white border-primary"
                     : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100"
                 }`}
               >
@@ -544,62 +514,34 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
               <div className="mt-2">
                 <div
                   className={`flex items-center justify-between p-3 rounded-lg border ${
-                    stock === 0
-                      ? "bg-amber-50 border-amber-100"
-                      : "bg-green-50 border-green-100"
+                    stock === 0 ? "bg-amber-50 border-amber-100" : "bg-green-50 border-green-100"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className={`${
-                        stock === 0 ? "bg-amber-600" : "bg-green-600"
-                      } text-white p-2 rounded-lg`}
-                    >
+                    <div className={`${stock === 0 ? "bg-amber-600" : "bg-green-600"} text-white p-2 rounded-lg`}>
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <p
-                        className={`font-medium ${
-                          stock === 0 ? "text-amber-800" : "text-green-800"
-                        }`}
-                      >
-                        {stock === 0
-                          ? "Extended delivery time"
-                          : "Same-day delivery available"}
+                      <p className={`font-medium ${stock === 0 ? "text-amber-800" : "text-green-800"}`}>
+                        {stock === 0 ? "Extended delivery time" : "Same-day delivery available"}
                       </p>
-                      <p
-                        className={`text-sm ${
-                          stock === 0 ? "text-amber-600" : "text-green-600"
-                        }`}
-                      >
-                        {stock === 0
-                          ? "Additional 4 hours for restocking"
-                          : "Order within 2 hrs to get it today"}
+                      <p className={`text-sm ${stock === 0 ? "text-amber-600" : "text-green-600"}`}>
+                        {stock === 0 ? "Additional 4 hours for restocking" : "Order within 2 hrs to get it today"}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span
-                      className={`text-sm font-medium ${
-                        stock === 0 ? "text-amber-800" : "text-green-800"
-                      }`}
-                    >
+                    <span className={`text-sm font-medium ${stock === 0 ? "text-amber-800" : "text-green-800"}`}>
                       {stock === 0 ? "Today + 4hrs" : "Today"}
                     </span>
-                    <span
-                      className={`text-xs ${
-                        stock === 0 ? "text-amber-600" : "text-green-600"
-                      }`}
-                    >
+                    <span className={`text-xs ${stock === 0 ? "text-amber-600" : "text-green-600"}`}>
                       {stock === 0 ? "9:00 PM - 11:00 PM" : "5:00 PM - 7:00 PM"}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-3">
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    Choose delivery time
-                  </p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Choose delivery time</p>
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       {
@@ -620,16 +562,14 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                         disabled={!slot.available}
                         className={`py-2 px-3 text-sm rounded-lg border transition-colors ${
                           index === 0
-                            ? "bg-black text-white border-black"
+                            ? "bg-primary text-white border-primary"
                             : slot.available
-                            ? "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-                            : "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
+                              ? "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                              : "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
                         }`}
                       >
                         {slot.time}
-                        {!slot.available && (
-                          <span className="block text-xs">Unavailable</span>
-                        )}
+                        {!slot.available && <span className="block text-xs">Unavailable</span>}
                       </button>
                     ))}
                   </div>
@@ -637,58 +577,53 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
               </div>
             ) : (
               <div className="mt-2">
-                {selectedDate ? (
-                  <div
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => setCalendarOpen(true)}
-                  >
+                {selectedDate && selectedTimeSlot ? (
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                     <div className="flex items-center gap-3">
-                      <div className="bg-black text-white p-2 rounded-lg">
+                      <div className="bg-primary text-white p-2 rounded-lg">
                         <CalendarIcon className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">
-                          {format(selectedDate, "EEEE, MMMM d")}
-                        </p>
+                        <p className="font-medium text-gray-900">{format(selectedDate, "EEEE, MMMM d")}</p>
                         <p className="text-sm text-gray-500">
-                          Delivery between{" "}
-                          {
-                            timeSlotNames[
-                              selectedTimeSlot as keyof typeof timeSlotNames
-                            ]
-                          }
+                          Delivery between {timeSlotNames[selectedTimeSlot as keyof typeof timeSlotNames]}
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-primary border-primary hover:bg-primary/5"
+                      onClick={() => setCalendarOpen(true)}
+                    >
+                      Edit
+                    </Button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-4 gap-2">
-                    {next7Days.slice(0, 4).map((date, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          setSelectedDate(date);
-                          if (!selectedTimeSlot) setSelectedTimeSlot("morning");
-                        }}
-                        className="py-2 text-sm border border-gray-200 rounded-lg hover:border-black/30 hover:bg-black/5 flex flex-col items-center"
-                      >
-                        <span className="text-xs text-gray-500">
-                          {format(date, "EEE")}
-                        </span>
-                        <span className="font-medium">{format(date, "d")}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {!selectedDate && (
-                  <button
-                    onClick={() => setCalendarOpen(true)}
-                    className="w-full mt-2 py-2 text-sm border border-dashed border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-1"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    More Options
-                  </button>
+                  <>
+                    <div className="grid grid-cols-4 gap-2">
+                      {next7Days.slice(0, 4).map((date, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setSelectedDate(date)
+                            if (!selectedTimeSlot) setSelectedTimeSlot("morning")
+                          }}
+                          className="py-2 text-sm border border-gray-200 rounded-lg hover:border-primary/30 hover:bg-primary/5 flex flex-col items-center"
+                        >
+                          <span className="text-xs text-gray-500">{format(date, "EEE")}</span>
+                          <span className="font-medium">{format(date, "d")}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setCalendarOpen(true)}
+                      className="w-full mt-2 py-2 text-sm border border-dashed border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-1"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      More Options
+                    </button>
+                  </>
                 )}
               </div>
             )}
@@ -698,19 +633,15 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                 <div className="flex items-start gap-2">
                   <MapPin className="h-5 w-5 text-[#560000] mt-0.5 flex-shrink-0" />
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-700">
-                      Delivering to:
-                    </span>
+                    <span className="text-sm font-medium text-gray-700">Delivering to:</span>
                     <span className="text-sm font-medium text-[#560000] mt-0.5">
                       {addresses[selectedAddress].label}
                     </span>
                     <div className="text-sm text-gray-600 mt-0.5">
                       {(() => {
-                        const [line1, city, pincode] = addresses[
-                          selectedAddress
-                        ].address
+                        const [line1, city, pincode] = addresses[selectedAddress].address
                           .split(",")
-                          .map((part) => part.trim());
+                          .map((part) => part.trim())
                         return (
                           <>
                             <div>{line1}</div>
@@ -718,7 +649,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                               {city}, {pincode}
                             </div>
                           </>
-                        );
+                        )
                       })()}
                     </div>
                   </div>
@@ -728,17 +659,14 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                     <button
                       className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[#560000] font-medium text-sm hover:bg-gray-50 transition-colors flex items-center gap-1.5 shadow-sm"
                       onClick={() => {
-                        setShowAddAddress(false);
-                        setAddressDialogOpen(true);
+                        setShowAddAddress(false)
+                        setAddressDialogOpen(true)
                       }}
                     >
                       <ChevronRight className="h-4 w-4" />
                       Change
                     </button>
-                    <Drawer
-                      open={addressDialogOpen}
-                      onOpenChange={setAddressDialogOpen}
-                    >
+                    <Drawer open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
                       <AddressDrawer
                         open={addressDialogOpen}
                         setOpen={setAddressDialogOpen}
@@ -751,15 +679,12 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                     </Drawer>
                   </>
                 ) : (
-                  <Dialog
-                    open={addressDialogOpen}
-                    onOpenChange={setAddressDialogOpen}
-                  >
+                  <Dialog open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
                     <DialogTrigger asChild>
                       <button
                         className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[#560000] font-medium text-sm hover:bg-gray-50 transition-colors flex items-center gap-1.5 shadow-sm"
                         onClick={() => {
-                          setShowAddAddress(false);
+                          setShowAddAddress(false)
                         }}
                       >
                         <ChevronRight className="h-4 w-4" />
@@ -771,45 +696,28 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                         <>
                           <DialogHeader>
                             <DialogTitle>Add New Address</DialogTitle>
-                            <DialogDescription>
-                              Enter your new address below.
-                            </DialogDescription>
+                            <DialogDescription>Enter your new address below.</DialogDescription>
                           </DialogHeader>
                           <form className="space-y-3 my-4">
                             <div className="relative">
                               <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <Input
-                                placeholder="Label (e.g. Home, Work)"
-                                className="bg-white text-sm pl-10"
-                              />
+                              <Input placeholder="Label (e.g. Home, Work)" className="bg-white text-sm pl-10" />
                             </div>
                             <div className="relative">
                               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <Input
-                                placeholder="Street, Area"
-                                className="bg-white text-sm pl-10"
-                              />
+                              <Input placeholder="Street, Area" className="bg-white text-sm pl-10" />
                             </div>
                             <div className="relative">
                               <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <Input
-                                placeholder="City"
-                                className="bg-white text-sm pl-10"
-                              />
+                              <Input placeholder="City" className="bg-white text-sm pl-10" />
                             </div>
                             <div className="relative">
                               <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <Input
-                                placeholder="State"
-                                className="bg-white text-sm pl-10"
-                              />
+                              <Input placeholder="State" className="bg-white text-sm pl-10" />
                             </div>
                             <div className="relative">
                               <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <Input
-                                placeholder="Pincode"
-                                className="bg-white text-sm pl-10"
-                              />
+                              <Input placeholder="Pincode" className="bg-white text-sm pl-10" />
                             </div>
                           </form>
                           <DialogFooter>
@@ -821,7 +729,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                             </button>
                             <DialogClose asChild>
                               <button
-                                className="px-4 py-2 rounded-lg border !border-[#560000] bg-black text-white font-semibold hover:bg-gray-900"
+                                className="px-4 py-2 rounded-lg border border-primary bg-primary text-white font-semibold hover:bg-primary/90"
                                 onClick={() => setAddressDialogOpen(false)}
                               >
                                 Save
@@ -852,9 +760,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
 
           {/* Customization - Enhanced with Input Fields */}
           <div className="space-y-3">
-            <h3 className="text-base font-semibold text-gray-800">
-              Customization
-            </h3>
+            <h3 className="text-base font-semibold text-gray-800">Customization</h3>
 
             <div className="grid grid-cols-2 gap-2">
               {getCustomizationOptions().map((option) => (
@@ -864,14 +770,13 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                   onOpenChange={(open) => {
                     if (open) {
                       if (!selectedCustomizations.includes(option.id)) {
-                        toggleCustomization(option.id);
+                        toggleCustomization(option.id)
                       }
-                      setDialogType(option.id as "text" | "card");
-                      if (option.id === "text") setTempCakeText(cakeText);
-                      if (option.id === "card")
-                        setTempMessageCardText(messageCardText);
+                      setDialogType(option.id as "text" | "card")
+                      if (option.id === "text") setTempCakeText(cakeText)
+                      if (option.id === "card") setTempMessageCardText(messageCardText)
                     } else {
-                      setDialogType(null);
+                      setDialogType(null)
                     }
                   }}
                 >
@@ -883,20 +788,12 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
-                      <span
-                        className={
-                          selectedCustomizations.includes(option.id)
-                            ? "text-black"
-                            : "text-gray-500"
-                        }
-                      >
+                      <span className={selectedCustomizations.includes(option.id) ? "text-black" : "text-gray-500"}>
                         {option.icon}
                       </span>
                       <span
                         className={`${
-                          selectedCustomizations.includes(option.id)
-                            ? "text-black"
-                            : "text-gray-700"
+                          selectedCustomizations.includes(option.id) ? "text-black" : "text-gray-700"
                         } truncate`}
                       >
                         {option.label}
@@ -909,11 +806,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                   {(option.id === "text" || option.id === "card") && (
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>
-                          {option.id === "text"
-                            ? "Text on Cake"
-                            : "Message Card"}
-                        </DialogTitle>
+                        <DialogTitle>{option.id === "text" ? "Text on Cake" : "Message Card"}</DialogTitle>
                         <DialogDescription>
                           {option.id === "text"
                             ? "This will be written on the cake. Max 30 characters."
@@ -924,11 +817,9 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                         <>
                           <Input
                             value={tempCakeText}
-                            onChange={(e) =>
-                              setTempCakeText(e.target.value.slice(0, 30))
-                            }
+                            onChange={(e) => setTempCakeText(e.target.value.slice(0, 30))}
                             placeholder="Happy Birthday John!"
-                            className="bg-white text-sm mb-2 focus-visible:ring-black"
+                            className="bg-white text-sm mb-2 focus-visible:ring-primary"
                             maxLength={30}
                           />
                           <div className="flex justify-between text-xs text-gray-500 mb-4">
@@ -939,11 +830,9 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                       ) : (
                         <Textarea
                           value={tempMessageCardText}
-                          onChange={(e) =>
-                            setTempMessageCardText(e.target.value)
-                          }
+                          onChange={(e) => setTempMessageCardText(e.target.value)}
                           placeholder="Write your special message here..."
-                          className="bg-white text-sm resize-none mb-2 focus-visible:ring-black"
+                          className="bg-white text-sm resize-none mb-2 focus-visible:ring-primary"
                           rows={3}
                         />
                       )}
@@ -958,13 +847,11 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
                         </DialogClose>
                         <DialogClose asChild>
                           <button
-                            className="px-4 py-2 rounded-lg border !border-[#560000] bg-black text-white font-semibold hover:bg-gray-900"
+                            className="px-4 py-2 rounded-lg border border-primary bg-primary text-white font-semibold hover:bg-primary/90"
                             onClick={() => {
-                              if (option.id === "text")
-                                setCakeText(tempCakeText);
-                              if (option.id === "card")
-                                setMessageCardText(tempMessageCardText);
-                              setDialogType(null);
+                              if (option.id === "text") setCakeText(tempCakeText)
+                              if (option.id === "card") setMessageCardText(tempMessageCardText)
+                              setDialogType(null)
                             }}
                           >
                             Save
@@ -981,8 +868,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
             {selectedCustomizations.length > 0 && (
               <div className="mt-2">
                 <p className="text-xs text-gray-500">
-                  * All customizations will be added to your order when you
-                  click "Add to Cart"
+                  * All customizations will be added to your order when you click "Add to Cart"
                 </p>
               </div>
             )}
@@ -998,9 +884,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
               <div className="flex items-center gap-3 p-3 rounded-lg border border-green-100 bg-green-50">
                 <Percent className="h-4 w-4 text-green-600" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-green-800">
-                    10% off on orders above ₹1000
-                  </p>
+                  <p className="text-sm font-medium text-green-800">10% off on orders above ₹1000</p>
                   <p className="text-xs text-green-700">Use code: CAKE10</p>
                 </div>
                 <button
@@ -1015,9 +899,7 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
               <div className="flex items-center gap-3 p-3 rounded-lg border border-blue-100 bg-blue-50">
                 <Gift className="h-4 w-4 text-blue-600" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-blue-800">
-                    Free delivery on your first order
-                  </p>
+                  <p className="text-sm font-medium text-blue-800">Free delivery on your first order</p>
                   <p className="text-xs text-blue-700">Use code: FIRSTCAKE</p>
                 </div>
                 <button
@@ -1033,5 +915,5 @@ export default function CakeDeliveryCard({ stock = 15 }: { stock?: number }) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -70,7 +70,7 @@ export default function CheckoutPage() {
                 {/* Quantity controls */}
                 <div className="flex items-center border border-gray-300 rounded-lg mb-2">
                   <button
-                    className="px-3 py-1 text-[#361C1C]"
+                    className="px-3 py-1 text-primary"
                     onClick={() => {
                       if (item.quantity > 1) {
                         updateQuantity(item.id, item.quantity - 1)
@@ -82,10 +82,7 @@ export default function CheckoutPage() {
                     -
                   </button>
                   <span className="px-3 py-1">{item.quantity}</span>
-                  <button
-                    className="px-3 py-1 text-[#361C1C]"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  >
+                  <button className="px-3 py-1 text-primary" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
                     +
                   </button>
                 </div>
@@ -99,14 +96,14 @@ export default function CheckoutPage() {
           {cart.length === 0 && (
             <div className="py-8 text-center">
               <p className="text-gray-500">Your cart is empty. Add some items to proceed with checkout.</p>
-              <Link href="/products" className="text-[#361C1C] font-medium mt-4 inline-block">
+              <Link href="/products" className="text-primary font-medium mt-4 inline-block">
                 Browse Products
               </Link>
             </div>
           )}
 
           {/* Add More Items */}
-          <button className="flex items-center text-[#361C1C] font-medium mt-4">
+          <button className="flex items-center text-primary font-medium mt-4">
             <span className="text-xl mr-2">+</span> Add more items
           </button>
         </div>
@@ -138,7 +135,7 @@ export default function CheckoutPage() {
                   Clear
                 </Button>
                 <DrawerClose asChild>
-                  <Button className="bg-[#361C1C]">Save</Button>
+                  <Button className="bg-primary">Save</Button>
                 </DrawerClose>
               </DrawerFooter>
             </DrawerContent>
@@ -198,7 +195,7 @@ export default function CheckoutPage() {
         {/* Price Breakdown */}
         <div className="bg-white mx-4 my-4 p-4 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center mb-3">
-            <TiDocumentText className="h-5 w-5 mr-2 text-[#361C1C]" />
+            <TiDocumentText className="h-5 w-5 mr-2 text-primary" />
             <h3 className="font-medium">Bill Details</h3>
           </div>
           <div className="space-y-2">
@@ -230,9 +227,9 @@ export default function CheckoutPage() {
         {/* Cancellation Policy */}
         <div className="bg-white mx-4 my-4 p-4 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-start">
-            <AlertCircle className="h-5 w-5 mr-3 mt-0.5 text-[#361C1C] flex-shrink-0" />
+            <AlertCircle className="h-5 w-5 mr-3 mt-0.5 text-primary flex-shrink-0" />
             <div>
-              <h3 className="font-medium text-[#361C1C]">Order Policy</h3>
+              <h3 className="font-medium text-primary">Order Policy</h3>
               <p className="text-gray-600 text-sm mt-1">
                 Orders once placed cannot be cancelled. For any assistance, please contact our customer support.
               </p>
@@ -241,9 +238,9 @@ export default function CheckoutPage() {
         </div>
 
         {/* Bottom Payment Bar */}
-        <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 md:mb-0">
+        <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 md:mb-0">
           <Link href="/checkout/confirmation">
-            <button className="bg-[#361C1C] text-white py-3 rounded-full w-full flex items-center justify-center text-base font-medium">
+            <button className="bg-primary text-white py-3 rounded-full w-full flex items-center justify-center text-base font-medium">
               <div className="flex items-center">
                 Proceed to Pay <ChevronRight className="h-5 w-5 ml-1" />
               </div>

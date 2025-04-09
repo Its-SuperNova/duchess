@@ -31,15 +31,19 @@ export default function FavoritesPage() {
   return (
     <div className="bg-white min-h-screen pb-32">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white p-4 flex items-center border-b">
+      <div className="sticky top-0 z-10 bg-white px-4 h-[64px] flex items-center border-b">
         <Link href="/" className="mr-4">
           <div className="bg-gray-100 p-2 rounded-full">
             <ArrowLeft className="h-5 w-5" />
           </div>
         </Link>
         <h1 className="text-xl font-semibold">My Favorites</h1>
-        <div className="ml-auto text-sm text-gray-500">
+        <div className="ml-auto text-sm text-gray-500 mr-4">
           {favorites.length} {favorites.length === 1 ? "item" : "items"}
+        </div>
+        {/* Profile Picture */}
+        <div className="relative h-8 w-8 rounded-full overflow-hidden">
+          <Image src="/profile-avatar.png" alt="Profile" fill className="object-cover" />
         </div>
       </div>
 
@@ -65,14 +69,14 @@ export default function FavoritesPage() {
                     </div>
                     <p className="text-sm text-gray-500 truncate">{item.description?.substring(0, 30)}...</p>
                   </div>
-                  <p className="font-semibold text-[#361C1C] mt-1">₹{item.price}</p>
+                  <p className="font-semibold text-primary mt-1">₹{item.price}</p>
                 </div>
 
                 {/* Action buttons */}
                 <div className="flex items-center gap-2 ml-2">
                   <button
                     onClick={() => handleAddToCart(item.id)}
-                    className="w-9 h-9 flex items-center justify-center bg-[#361C1C] text-white rounded-md"
+                    className="w-9 h-9 flex items-center justify-center bg-primary text-white rounded-md"
                     aria-label="Add to cart"
                   >
                     <ShoppingBag className="h-5 w-5" />
@@ -108,7 +112,7 @@ export default function FavoritesPage() {
             </div>
             <h2 className="text-xl font-medium text-gray-700 mb-2">Your favorites list is empty</h2>
             <p className="text-gray-500 text-center mb-6">Save your favorite items to find them easily later</p>
-            <Link href="/" className="bg-[#361C1C] text-white px-6 py-3 rounded-full text-sm font-medium">
+            <Link href="/" className="bg-primary text-white px-6 py-3 rounded-full text-sm font-medium">
               Explore Products
             </Link>
           </div>

@@ -24,9 +24,13 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<Product[]>([])
+  const [isClient, setIsClient] = useState(false)
 
-  // Load favorites from localStorage on initial render
+  // Set isClient to true when component mounts (client-side only)
   useEffect(() => {
+    setIsClient(true)
+
+    // Load favorites from localStorage
     const storedFavorites = localStorage.getItem("favorites")
     if (storedFavorites) {
       try {
@@ -39,8 +43,10 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
   // Save favorites to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites))
-  }, [favorites])
+    if (isClient) {
+      localStorage.setItem("favorites", JSON.stringify(favorites))
+    }
+  }, [favorites, isClient])
 
   const addToFavorites = (product: Product) => {
     setFavorites((prev) => {
@@ -69,8 +75,23 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
 export function useFavorites() {
   const context = useContext(FavoritesContext)
+
+  // Check if we're in a browser environment
+  const isBrowser = typeof window !== "undefined"
+
+  // If we're not in a browser and context is undefined, return a dummy context
+  if (!isBrowser && context === undefined) {
+    return {
+      favorites: [],
+      addToFavorites: () => {},
+      removeFromFavorites: () => {},
+      isFavorite: () => false,
+    }
+  }
+
   if (context === undefined) {
     throw new Error("useFavorites must be used within a FavoritesProvider")
   }
+
   return context
 }

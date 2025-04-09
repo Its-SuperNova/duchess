@@ -16,13 +16,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -33,12 +26,14 @@ import {
 } from "@/components/ui/pagination"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, MoreHorizontal, Plus, Search, Tag, Pencil, Trash2 } from "lucide-react"
+import { AlertCircle, Plus, Search, Tag, Pencil, Trash2 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 // Add these imports at the top with the other imports
 import { HiOutlineSquares2X2 } from "react-icons/hi2"
 import { CiCircleList } from "react-icons/ci"
+// Add these imports at the top with the other imports
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Sample categories data
 const initialCategories = [
@@ -281,6 +276,7 @@ export default function CategoriesPage() {
                   <TableHead className="hidden md:table-cell">Description</TableHead>
                   <TableHead className="hidden sm:table-cell">Total Products</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Visibility</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -302,28 +298,62 @@ export default function CategoriesPage() {
                         {category.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`category-visibility-${category.id}`}
+                          checked={category.isActive}
+                          onCheckedChange={(checked) =>
+                            setCategories((prevCategories) =>
+                              prevCategories.map((cat) =>
+                                cat.id === category.id ? { ...cat, isActive: checked } : cat,
+                              ),
+                            )
+                          }
+                          className="data-[state=checked]:bg-blue-600"
+                        />
+                        <Label htmlFor={`category-visibility-${category.id}`} className="sr-only">
+                          Toggle visibility for {category.name}
+                        </Label>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditCategory(category)}>Edit</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600"
-                            onClick={() => {
-                              setCategoryToDelete(category.id)
-                              setIsDeleteDialogOpen(true)
-                            }}
-                          >
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex justify-end gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="outline" size="icon" onClick={() => handleEditCategory(category)}>
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Edit Category</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit Category</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="text-red-600 hover:text-red-700"
+                                onClick={() => {
+                                  setCategoryToDelete(category.id)
+                                  setIsDeleteDialogOpen(true)
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete Category</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Delete Category</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -356,22 +386,45 @@ export default function CategoriesPage() {
                   </div>
                 </div>
                 <div className="bg-muted p-4 flex justify-end gap-2 dark:bg-[#141414]">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditCategory(category)}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-red-600 hover:text-red-700"
-                    onClick={() => {
-                      setCategoryToDelete(category.id)
-                      setIsDeleteDialogOpen(true)
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleEditCategory(category)}
+                        >
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Edit Category</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-red-600 hover:text-red-700"
+                          onClick={() => {
+                            setCategoryToDelete(category.id)
+                            setIsDeleteDialogOpen(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Delete Category</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </CardContent>
             </Card>

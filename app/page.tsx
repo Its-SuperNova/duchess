@@ -1,8 +1,5 @@
-import Header from "@/components/block/Header";
-import Hero from "@/components/block/hero";
-import ProductCard from "@/components/productcard";
-import Image from "next/image";
-import { NewsletterSubscription } from "@/components/block/NewsletterSubscription";
+import HomeClient from "./home-client";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function Home() {
   // Product data for the home page
@@ -130,57 +127,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="pb-10">
-      <Header />
-      <div className="min-h-screen relative bg-white dark:bg-gray-900 flex flex-col max-w-[1300px] mx-auto">
-        <Hero />
-
-        {/* Products Section */}
-        <div className="mx-auto w-full">
-          <section className="px-4 py-8 md:px-6 lg:px-8 flex-grow">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">
-              Popular Products
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  rating={product.rating}
-                  imageUrl={product.imageUrl}
-                  price={product.price}
-                  isVeg={product.isVeg}
-                  description={product.description}
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* Why We Are Best Banner - Mobile/Tablet Version */}
-          <div className="block lg:hidden px-4 md:px-6 py-6 md:py-8">
-            <img
-              src="/images/banner/footer/duchess-pastries banner-mobile.png"
-              alt="Why we are the best"
-              className="w-full rounded-3xl shadow-md"
-            />
-          </div>
-
-          {/* Why We Are Best Banner - Desktop Version */}
-          <div className="hidden lg:block px-4 md:px-6 lg:px-8 py-6 md:py-8">
-            <div className="rounded-3xl overflow-hidden shadow-md">
-              <Image
-                src="/images/banner/footer/duchess-pastries-banner.png"
-                alt="Why we are the best - Handcrafted fresh daily, delivered with care, affordable prices, and loved by thousands"
-                width={1280}
-                height={320}
-                className="w-full h-auto object-cover"
-                priority
-              />
-            </div>
-          </div>
-        </div>
+    <ProtectedRoute>
+      <div>
+        <HomeClient products={products} />
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

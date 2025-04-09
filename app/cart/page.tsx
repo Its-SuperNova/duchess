@@ -21,15 +21,19 @@ export default function CartPage() {
   return (
     <div className="bg-white min-h-screen pb-32">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white p-4 flex items-center border-b">
+      <div className="sticky top-0 z-10 bg-white px-4 h-[64px] flex items-center border-b">
         <Link href="/" className="mr-4">
           <div className="bg-gray-100 p-2 rounded-full">
             <ArrowLeft className="h-5 w-5" />
           </div>
         </Link>
         <h1 className="text-xl font-semibold">My Cart</h1>
-        <div className="ml-auto text-sm text-gray-500">
+        <div className="ml-auto text-sm text-gray-500 mr-4">
           {cart.length} {cart.length === 1 ? "item" : "items"}
+        </div>
+        {/* Profile Picture */}
+        <div className="relative h-8 w-8 rounded-full overflow-hidden">
+          <Image src="/profile-avatar.png" alt="Profile" fill className="object-cover" />
         </div>
       </div>
 
@@ -71,7 +75,7 @@ export default function CartPage() {
               </button>
               <span className="mx-3">{item.quantity}</span>
               <button
-                className="w-8 h-8 flex items-center justify-center text-white bg-[#361C1C] rounded-md"
+                className="w-8 h-8 flex items-center justify-center text-white bg-primary rounded-md"
                 onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
               >
                 <Plus className="h-4 w-4" />
@@ -103,7 +107,7 @@ export default function CartPage() {
             </div>
             <h2 className="text-xl font-medium text-gray-700 mb-2">Your cart is empty</h2>
             <p className="text-gray-500 text-center mb-6">Looks like you haven't added any items to your cart yet.</p>
-            <Link href="/products" className="bg-[#361C1C] text-white px-6 py-3 rounded-full text-sm font-medium">
+            <Link href="/products" className="bg-primary text-white px-6 py-3 rounded-full text-sm font-medium">
               Browse Products
             </Link>
           </div>
@@ -112,13 +116,13 @@ export default function CartPage() {
 
       {/* Bottom Payment Bar - Positioned above the bottom nav */}
       {cart.length > 0 && (
-        <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40">
+        <div className="fixed bottom-[80px] left-0 right-0 bg-white border-t border-gray-200 p-4 z-40">
           <div className="flex justify-between items-center mb-4">
             <span className="text-gray-600">Subtotal</span>
             <span className="font-bold">₹{subtotal.toFixed(2)}</span>
           </div>
           <Link href="/checkout" className="w-full">
-            <Button className="w-full bg-[#361C1C] hover:bg-[#4a2a2a] text-white py-3 rounded-full">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-full">
               Proceed to Checkout
             </Button>
           </Link>

@@ -1,209 +1,202 @@
-"use client"
-import Link from "next/link"
-import type React from "react"
+"use client";
 
-import Image from "next/image"
-import { ArrowLeft, Search, Clock, X } from "lucide-react"
-import { useState } from "react"
+import type React from "react";
 
-export default function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isSearching, setIsSearching] = useState(false)
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import GoogleSignInButton from "@/components/auth/google-sign-in-button";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-  // Sample recent searches
-  const [recentSearches, setRecentSearches] = useState(["Chocolate cake", "Red velvet", "Birthday cake", "Croissant"])
+export default function RegisterPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
 
-  // Popular categories with images
-  const popularCategories = [
-    { name: "Cup Cake", image: "/images/categories/cupcake.png" },
-    { name: "Cookies", image: "/images/categories/cookies.png" },
-    { name: "Donuts", image: "/images/categories/pink-donut.png" },
-    { name: "Breads", image: "/images/categories/bread.png" },
-    { name: "Pastry", image: "/images/categories/croissant.png" },
-    { name: "Sweets", image: "/images/categories/sweets-bowl.png" },
-    { name: "Chocolate", image: "/images/categories/chocolate-bar.png" },
-    { name: "Muffins", image: "/images/categories/muffin.png" },
-    { name: "Cake", image: "/images/categories/cake.png" },
-  ]
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  // Sample search results
-  const searchResults = [
-    {
-      id: 1,
-      name: "Red Velvet Cheesecake",
-      price: 499,
-      image: "/images/red-velvet.png",
-      isVeg: false,
-    },
-    {
-      id: 2,
-      name: "Chocolate Éclair",
-      price: 649,
-      image: "/images/chocolate-eclair.jpg",
-      isVeg: true,
-    },
-    {
-      id: 3,
-      name: "Strawberry Tart",
-      price: 399,
-      image: "/images/strawberry-tart.jpg",
-      isVeg: true,
-    },
-    {
-      id: 4,
-      name: "Blueberry Muffin",
-      price: 249,
-      image: "/images/blueberry-muffin.jpg",
-      isVeg: true,
-    },
-  ]
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      setIsSearching(true)
-      // In a real app, you would fetch search results here
-      if (!recentSearches.includes(searchQuery)) {
-        setRecentSearches([searchQuery, ...recentSearches.slice(0, 3)])
+      if (error) {
+        toast.error(error.message);
+        setLoading(false);
+        return;
       }
+
+      // If user is returned, insert profile (no email confirmation required)
+      if (data.user) {
+        await supabase.from("profiles").insert([
+          {
+            id: data.user.id,
+            full_name: fullName,
+            email: email,
+            role: "user",
+          },
+        ]);
+      }
+
+      toast.success(
+        "Registration successful! Please check your email to confirm your account."
+      );
+      router.push("/login");
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during registration");
+    } finally {
+      setLoading(false);
     }
-  }
-
-  const clearSearch = () => {
-    setSearchQuery("")
-    setIsSearching(false)
-  }
-
-  const removeRecentSearch = (search: string) => {
-    setRecentSearches(recentSearches.filter((item) => item !== search))
-  }
+  };
 
   return (
-    <div className="bg-white min-h-screen pb-32">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white p-4 flex items-center border-b shadow-sm">
-        <Link href="/" className="mr-4">
-          <div className="bg-gray-100 p-2 rounded-full">
-            <ArrowLeft className="h-5 w-5" />
-          </div>
-        </Link>
-        <h1 className="text-xl font-semibold">Search</h1>
-      </div>
-
-      {/* Search Input */}
-      <div className="px-4 py-4">
-        <form onSubmit={handleSearch} className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for pastries, cakes, etc."
-            className="w-full pl-10 pr-10 py-3 rounded-full bg-[#F0F4F8] border-none focus:outline-none focus:ring-1 focus:ring-[#361C1C]"
+    <div className="flex min-h-screen items-center justify-center bg-white p-4 md:p-0">
+      <div className="w-full max-w-4xl overflow-hidden rounded-3xl bg-white p-3 shadow-2xl md:grid md:grid-cols-2">
+        {/* Left Section - Image */}
+        <div className="relative hidden h-full min-h-[400px] md:block">
+          <Image
+            src="/login-signup-banner.png"
+            alt="Delicious cookies on a plate"
+            layout="fill"
+            objectFit="cover"
+            className="rounded-3xl"
           />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          )}
-        </form>
-      </div>
+        </div>
 
-      {/* Content */}
-      <div className="px-4">
-        {isSearching ? (
-          // Search Results
-          <>
-            <h2 className="text-lg font-medium mb-4">Search Results for "{searchQuery}"</h2>
-            <div className="divide-y">
-              {searchResults.map((item) => (
-                <Link href={`/products/${item.id}`} key={item.id}>
-                  <div className="py-4 flex items-center">
-                    {/* Product image */}
-                    <div className="relative h-16 w-16 rounded-md overflow-hidden mr-3">
-                      <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
-                    </div>
+        {/* Right Section - Register Form */}
+        <div className="flex flex-col items-center justify-center p-8 md:p-12">
+          <div className="w-full max-w-md space-y-6">
+            <div className="text-center">
+              <Image
+                src="/duchess-logo.png"
+                alt="Duchess Logo"
+                width={120}
+                height={40}
+                className="mx-auto mb-4"
+              />
+              <h1 className="text-2xl font-bold text-gray-900">Sign Up</h1>
+              <p className="mt-2 text-gray-600">
+                Join us and discover sweet delights!
+              </p>
+            </div>
 
-                    {/* Product details */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-800 truncate">{item.name}</h3>
-                      <div className="flex items-center mt-1">
-                        <div
-                          className={`w-4 h-4 border ${
-                            item.isVeg ? "border-green-600" : "border-red-600"
-                          } flex items-center justify-center rounded-sm mr-2`}
-                        >
-                          <div className={`w-2 h-2 ${item.isVeg ? "bg-green-600" : "bg-red-600"} rounded-full`}></div>
-                        </div>
-                        <p className="font-semibold text-[#361C1C]">₹{item.price}</p>
-                      </div>
-                    </div>
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="name"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Name
+                </label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="h-12 rounded-lg border border-gray-300 bg-gray-50 px-4 focus:border-primary focus:ring-primary"
+                  required
+                />
+              </div>
 
-                    {/* Add button */}
-                    <button className="ml-2 bg-[#361C1C] text-white text-xs px-3 py-1 rounded-full">Add</button>
-                  </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="example@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-12 rounded-lg border border-gray-300 bg-gray-50 px-4 focus:border-primary focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Password
+                  </label>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-12 rounded-lg border border-gray-300 bg-gray-50 pr-10 focus:border-primary focus:ring-primary"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-full bg-primary text-white hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading ? "Signing Up..." : "Sign Up"}
+              </Button>
+            </form>
+
+            <div className="relative flex items-center justify-center">
+              <Separator className="absolute w-full" />
+              <span className="relative bg-white px-4 text-sm text-gray-500">
+                Or sign up with
+              </span>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleSignInButton />
+            </div>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="font-medium text-primary hover:underline"
+                >
+                  Sign In
                 </Link>
-              ))}
+              </p>
             </div>
-          </>
-        ) : (
-          // Recent Searches and Popular Categories
-          <>
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-3">
-                <h2 className="text-lg font-medium">Recent Searches</h2>
-                {recentSearches.length > 0 && <button className="text-[#361C1C] text-sm font-medium">Clear All</button>}
-              </div>
-
-              {recentSearches.length > 0 ? (
-                <div className="space-y-3">
-                  {recentSearches.map((search, index) => (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 text-gray-400 mr-3" />
-                        <span>{search}</span>
-                      </div>
-                      <button onClick={() => removeRecentSearch(search)}>
-                        <X className="h-4 w-4 text-gray-400" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-gray-50 p-6 rounded-lg text-center">
-                  <p className="text-gray-500">No recent searches</p>
-                </div>
-              )}
-            </div>
-
-            {/* Popular Categories */}
-            <div>
-              <h2 className="text-lg font-medium mb-3">Popular Categories</h2>
-              <div className="grid grid-cols-4 gap-4">
-                {popularCategories.map((category, index) => (
-                  <Link href={`/products?category=${category.name.toLowerCase()}`} key={index}>
-                    <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 relative bg-[#F9F5F0] rounded-full overflow-hidden flex items-center justify-center">
-                        <Image
-                          src={category.image || `/placeholder.svg?height=64&width=64&text=${category.name}`}
-                          alt={category.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <p className="text-xs font-medium mt-2 text-center">{category.name}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </div>
-  )
+  );
 }

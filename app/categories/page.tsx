@@ -21,7 +21,7 @@ export default function CategoriesPage() {
   return (
     <div className="bg-white min-h-screen pb-32">
       {/* Header - Updated to match other pages */}
-      <div className="sticky top-0 z-10 bg-white p-4 flex items-center border-b shadow-sm">
+      <div className="sticky top-0 z-10 bg-white px-4 h-[64px] flex items-center border-b shadow-sm">
         <Link href="/" className="mr-4">
           <div className="bg-gray-100 p-2 rounded-full">
             <ArrowLeft className="h-5 w-5" />

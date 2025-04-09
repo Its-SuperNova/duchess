@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react" // Import useEffect
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,13 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -32,10 +25,13 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, FileDown, MoreHorizontal, Package, Pencil, Plus, Search, Trash2 } from "lucide-react"
+import { AlertCircle, FileDown, Package, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import { HiOutlineSquares2X2 } from "react-icons/hi2"
 import { CiCircleList } from "react-icons/ci"
 import Image from "next/image"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 // Sample products data
 const initialProducts = [
@@ -50,6 +46,30 @@ const initialProducts = [
     description: "Rich chocolate cake with creamy ganache frosting.",
     isActive: true,
     discountPercent: 0,
+    longDescription:
+      "A rich and moist chocolate cake, perfect for any occasion. Made with premium cocoa and topped with a smooth chocolate ganache.",
+    isVeg: true,
+    hasOffer: false,
+    offerUpToPrice: 0,
+    weightOptions: [{ weight: "0.5 Kg", price: "499", stock: "25", isActive: true }],
+    pieceOptions: [{ quantity: "1 piece", price: "499", stock: "25", isActive: true }],
+    sellingType: "weight",
+    calories: "350",
+    netWeight: "500",
+    protein: "5",
+    fats: "20",
+    carbs: "40",
+    sugars: "30",
+    fiber: "2",
+    sodium: "100",
+    deliveryOption: "both",
+    addTextOnCake: false,
+    addCandles: false,
+    addKnife: false,
+    addMessageCard: false,
+    highlights: ["Rich Flavor", "Moist Texture"],
+    ingredients: ["Flour", "Sugar", "Cocoa", "Eggs", "Butter"],
+    additionalImages: [],
   },
   {
     id: 2,
@@ -62,6 +82,30 @@ const initialProducts = [
     description: "Classic red velvet cupcake with cream cheese frosting.",
     isActive: true,
     discountPercent: 10,
+    longDescription:
+      "A delightful red velvet cupcake, topped with tangy cream cheese frosting. A perfect individual treat.",
+    isVeg: true,
+    hasOffer: true,
+    offerUpToPrice: 60,
+    weightOptions: [],
+    pieceOptions: [{ quantity: "1 piece", price: "199", stock: "5", isActive: true }],
+    sellingType: "piece",
+    calories: "250",
+    netWeight: "100",
+    protein: "3",
+    fats: "15",
+    carbs: "25",
+    sugars: "20",
+    fiber: "1",
+    sodium: "80",
+    deliveryOption: "same-day",
+    addTextOnCake: false,
+    addCandles: true,
+    addKnife: false,
+    addMessageCard: true,
+    highlights: ["Vibrant Color", "Cream Cheese Frosting"],
+    ingredients: ["Flour", "Sugar", "Cocoa", "Buttermilk", "Cream Cheese"],
+    additionalImages: [],
   },
   {
     id: 3,
@@ -74,6 +118,29 @@ const initialProducts = [
     description: "Chewy oatmeal cookies with raisins.",
     isActive: false,
     discountPercent: 0,
+    longDescription: "Hearty and chewy oatmeal cookies packed with plump raisins. A classic comfort food.",
+    isVeg: true,
+    hasOffer: false,
+    offerUpToPrice: 0,
+    weightOptions: [],
+    pieceOptions: [{ quantity: "1 piece", price: "99", stock: "0", isActive: false }],
+    sellingType: "piece",
+    calories: "150",
+    netWeight: "50",
+    protein: "2",
+    fats: "8",
+    carbs: "20",
+    sugars: "10",
+    fiber: "3",
+    sodium: "50",
+    deliveryOption: "both",
+    addTextOnCake: false,
+    addCandles: false,
+    addKnife: false,
+    addMessageCard: false,
+    highlights: ["Chewy Texture", "Healthy Oats"],
+    ingredients: ["Oats", "Flour", "Brown Sugar", "Raisins", "Cinnamon"],
+    additionalImages: [],
   },
   {
     id: 4,
@@ -86,6 +153,30 @@ const initialProducts = [
     description: "Buttery, flaky croissants baked fresh daily.",
     isActive: true,
     discountPercent: 0,
+    longDescription:
+      "Authentic French croissants, made with layers of buttery, flaky pastry. Perfect for breakfast or a light snack.",
+    isVeg: true,
+    hasOffer: false,
+    offerUpToPrice: 0,
+    weightOptions: [],
+    pieceOptions: [{ quantity: "1 piece", price: "149", stock: "18", isActive: true }],
+    sellingType: "piece",
+    calories: "280",
+    netWeight: "80",
+    protein: "4",
+    fats: "18",
+    carbs: "25",
+    sugars: "5",
+    fiber: "1",
+    sodium: "150",
+    deliveryOption: "same-day",
+    addTextOnCake: false,
+    addCandles: false,
+    addKnife: false,
+    addMessageCard: false,
+    highlights: ["Flaky Layers", "Buttery Taste"],
+    ingredients: ["Flour", "Butter", "Milk", "Yeast", "Sugar"],
+    additionalImages: [],
   },
   {
     id: 5,
@@ -98,6 +189,29 @@ const initialProducts = [
     description: "Creamy cheesecake topped with fresh strawberries.",
     isActive: true,
     discountPercent: 5,
+    longDescription: "A luscious cheesecake with a rich, creamy texture and a vibrant topping of fresh strawberries.",
+    isVeg: true,
+    hasOffer: true,
+    offerUpToPrice: 100,
+    weightOptions: [{ weight: "1 Kg", price: "599", stock: "7", isActive: true }],
+    pieceOptions: [],
+    sellingType: "weight",
+    calories: "400",
+    netWeight: "1000",
+    protein: "8",
+    fats: "25",
+    carbs: "50",
+    sugars: "40",
+    fiber: "3",
+    sodium: "120",
+    deliveryOption: "both",
+    addTextOnCake: true,
+    addCandles: true,
+    addKnife: true,
+    addMessageCard: true,
+    highlights: ["Creamy Texture", "Fresh Strawberries"],
+    ingredients: ["Cream Cheese", "Sugar", "Eggs", "Strawberries", "Graham Cracker Crust"],
+    additionalImages: [],
   },
   {
     id: 6,
@@ -110,6 +224,29 @@ const initialProducts = [
     description: "Classic cookies with chocolate chips in every bite.",
     isActive: true,
     discountPercent: 0,
+    longDescription: "The timeless favorite, soft and chewy chocolate chip cookies loaded with rich chocolate morsels.",
+    isVeg: true,
+    hasOffer: false,
+    offerUpToPrice: 0,
+    weightOptions: [],
+    pieceOptions: [{ quantity: "1 piece", price: "79", stock: "42", isActive: true }],
+    sellingType: "piece",
+    calories: "180",
+    netWeight: "60",
+    protein: "2",
+    fats: "10",
+    carbs: "22",
+    sugars: "15",
+    fiber: "1",
+    sodium: "70",
+    deliveryOption: "same-day",
+    addTextOnCake: false,
+    addCandles: false,
+    addKnife: false,
+    addMessageCard: false,
+    highlights: ["Classic Taste", "Plenty of Chocolate Chips"],
+    ingredients: ["Flour", "Butter", "Sugar", "Chocolate Chips", "Eggs"],
+    additionalImages: [],
   },
   {
     id: 7,
@@ -122,6 +259,29 @@ const initialProducts = [
     description: "Fluffy muffins bursting with fresh blueberries.",
     isActive: true,
     discountPercent: 0,
+    longDescription: "Light and fluffy muffins generously studded with juicy blueberries. A perfect breakfast treat.",
+    isVeg: true,
+    hasOffer: false,
+    offerUpToPrice: 0,
+    weightOptions: [],
+    pieceOptions: [{ quantity: "1 piece", price: "129", stock: "0", isActive: true }],
+    sellingType: "piece",
+    calories: "200",
+    netWeight: "90",
+    protein: "3",
+    fats: "10",
+    carbs: "30",
+    sugars: "18",
+    fiber: "2",
+    sodium: "90",
+    deliveryOption: "both",
+    addTextOnCake: false,
+    addCandles: false,
+    addKnife: false,
+    addMessageCard: false,
+    highlights: ["Moist & Fluffy", "Real Blueberries"],
+    ingredients: ["Flour", "Sugar", "Blueberries", "Milk", "Eggs"],
+    additionalImages: [],
   },
 ]
 
@@ -147,10 +307,30 @@ export default function ProductsPage() {
   const [stockFilter, setStockFilter] = useState("all")
   const [viewMode, setViewMode] = useState<"table" | "card">("table")
 
+  useEffect(() => {
+    // Load all products from localStorage, merging with initialProducts
+    const storedProductsString = localStorage.getItem("allProducts")
+    let allProducts = initialProducts // Start with initial products
+
+    if (storedProductsString) {
+      const newlyAddedOrEditedProducts = JSON.parse(storedProductsString)
+      // Merge: prioritize newly added/edited products if IDs conflict
+      const mergedProductsMap = new Map(initialProducts.map((p) => [p.id, p]))
+      newlyAddedOrEditedProducts.forEach((p: any) => mergedProductsMap.set(p.id, p))
+      allProducts = Array.from(mergedProductsMap.values())
+    } else {
+      // If no 'allProducts' in localStorage, save initial products there
+      localStorage.setItem("allProducts", JSON.stringify(initialProducts))
+    }
+    setProducts(allProducts)
+  }, [])
+
   // Delete product
   const confirmDelete = () => {
     if (productToDelete !== null) {
-      setProducts(products.filter((product) => product.id !== productToDelete))
+      const updatedProducts = products.filter((product) => product.id !== productToDelete)
+      setProducts(updatedProducts)
+      localStorage.setItem("allProducts", JSON.stringify(updatedProducts)) // Persist deletion
       setIsDeleteDialogOpen(false)
       setProductToDelete(null)
     }
@@ -158,9 +338,19 @@ export default function ProductsPage() {
 
   // Handle navigation to edit product
   const handleEditProduct = (product: any) => {
-    // This would navigate to an edit page in a real app
-    console.log("Edit product:", product)
-    // Example: router.push(`/admin/products/edit/${product.id}`)
+    // No need to store product in localStorage here, the edit page will fetch it by ID
+    router.push(`/admin/products/edit/${product.id}`)
+  }
+
+  // Add a new function to handle visibility change:
+  const handleProductVisibilityChange = (productId: number | string, checked: boolean) => {
+    setProducts((prevProducts) => {
+      const updatedProducts = prevProducts.map((product) =>
+        product.id === productId ? { ...product, isActive: checked } : product,
+      )
+      localStorage.setItem("allProducts", JSON.stringify(updatedProducts))
+      return updatedProducts
+    })
   }
 
   // Get status badge color
@@ -324,6 +514,7 @@ export default function ProductsPage() {
                   <TableHead>Price</TableHead>
                   <TableHead className="hidden sm:table-cell">Stock</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Visibility</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -361,29 +552,56 @@ export default function ProductsPage() {
                         {product.status.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`product-visibility-${product.id}`}
+                          checked={product.isActive}
+                          onCheckedChange={(checked) => handleProductVisibilityChange(product.id, checked)}
+                          className="data-[state=checked]:bg-blue-600"
+                        />
+                        <Label htmlFor={`product-visibility-${product.id}`} className="sr-only">
+                          Toggle visibility for {product.name}
+                        </Label>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditProduct(product)}>Edit Product</DropdownMenuItem>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600"
-                            onClick={() => {
-                              setProductToDelete(product.id)
-                              setIsDeleteDialogOpen(true)
-                            }}
-                          >
-                            Delete Product
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex justify-end gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" onClick={() => handleEditProduct(product)}>
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Edit Product</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit Product</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-red-600 hover:text-red-700"
+                                onClick={() => {
+                                  setProductToDelete(product.id)
+                                  setIsDeleteDialogOpen(true)
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete Product</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Delete Product</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -420,22 +638,40 @@ export default function ProductsPage() {
                 </div>
               </CardContent>
               <CardFooter className="p-4 flex justify-between gap-2 border-t dark:bg-[#141414]">
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditProduct(product)}>
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 text-red-600 hover:text-red-700"
-                  onClick={() => {
-                    setProductToDelete(product.id)
-                    setIsDeleteDialogOpen(true)
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditProduct(product)}>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Edit Product</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 text-red-600 hover:text-red-700"
+                        onClick={() => {
+                          setProductToDelete(product.id)
+                          setIsDeleteDialogOpen(true)
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Delete Product</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </CardFooter>
             </Card>
           ))}

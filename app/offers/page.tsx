@@ -39,7 +39,7 @@ export default function OffersPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pb-20">
       {/* Back navigation - similar to other pages */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 p-4 flex items-center border-b">
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 p-4 h-[64px] flex items-center border-b">
         <Link href="/" className="flex items-center text-[#361C1C]">
           <ArrowLeft className="h-5 w-5 mr-2" />
           <span className="font-medium">Special Offers</span>

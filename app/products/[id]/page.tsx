@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { FaStar, FaHeart, FaRegHeart, FaShare } from "react-icons/fa";
-import { BsArrowLeft } from "react-icons/bs";
-import { useParams, useRouter } from "next/navigation";
-import type { Product } from "@/context/favorites-context";
+import { useState, useEffect } from "react"
+import Image from "next/image"
+import { FaStar, FaHeart, FaRegHeart, FaShare } from "react-icons/fa"
+import { BsArrowLeft } from "react-icons/bs"
+import { useParams, useRouter } from "next/navigation"
+import type { Product } from "@/context/favorites-context"
 import {
   Truck,
   Coffee,
@@ -20,10 +20,12 @@ import {
   Shell,
   Package,
   AlertCircle,
-} from "lucide-react";
-import CakeDeliveryCard from "./cake-delivery-card";
-import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+} from "lucide-react"
+import CakeDeliveryCard from "./cake-delivery-card"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import { useFavorites } from "@/context/favorites-context"
+import { useCart } from "@/context/cart-context"
 
 // Enhanced product data with two-paragraph descriptions and stock information
 const productData = [
@@ -363,7 +365,7 @@ const productData = [
       "/layered-strawberry-cream.png",
     ],
   },
-];
+]
 
 // Weight options
 const weightOptions = [
@@ -372,72 +374,39 @@ const weightOptions = [
   { value: 1.5, label: "1.5 Kg" },
   { value: 2, label: "2 Kg" },
   { value: 4, label: "4 Kg" },
-];
+]
 
 export default function ProductPage() {
-  const router = useRouter();
-  const params = useParams();
-  const productId = Number(params?.id) || 1; // Default to product ID 1 if no ID is provided
-  const { toast } = useToast();
+  const router = useRouter()
+  const params = useParams()
+  const productId = Number(params?.id) || 1 // Default to product ID 1 if no ID is provided
+  const { toast } = useToast()
 
   // Find the product
-  const product = productData.find((p) => p.id === productId) || productData[0];
+  const product = productData.find((p) => p.id === productId) || productData[0]
 
-  // Mock implementations of context hooks
-  const useFavoritesImpl = () => {
-    const [favorites, setFavorites] = useState<number[]>([]);
-
-    return {
-      isFavorite: (id: number) => favorites.includes(id),
-      addToFavorites: (product: Product) => {
-        setFavorites((prev) => [...prev, product.id]);
-      },
-      removeFromFavorites: (id: number) => {
-        setFavorites((prev) => prev.filter((favId) => favId !== id));
-      },
-    };
-  };
-
-  const useCartImpl = () => {
-    return {
-      addToCart: (item: any) => {
-        console.log("Added to cart:", item);
-        toast({
-          title: "Added to cart!",
-          description: `${product.name} has been added to your cart.`,
-          duration: 3000,
-          className: "bg-green-50 text-green-800 border-green-300 py-3",
-        });
-      },
-    };
-  };
-
-  const { addToCart } = useCartImpl();
-  const { isFavorite, addToFavorites, removeFromFavorites } =
-    useFavoritesImpl();
+  const { addToCart } = useCart()
+  const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites()
 
   // State for selected weight and main image
-  const [selectedWeight, setSelectedWeight] = useState<number>(1);
-  const [mainImage, setMainImage] = useState(product.imageUrl);
-  const [isLiked, setIsLiked] = useState(isFavorite(product.id));
+  const [selectedWeight, setSelectedWeight] = useState<number>(1)
+  const [mainImage, setMainImage] = useState(product.imageUrl)
+  const [isLiked, setIsLiked] = useState(isFavorite(product.id))
 
   // Add state for order type and piece quantity
-  const [orderType, setOrderType] = useState<"kg" | "piece">("kg");
-  const [pieceQuantity, setPieceQuantity] = useState(1);
+  const [orderType, setOrderType] = useState<"kg" | "piece">("kg")
+  const [pieceQuantity, setPieceQuantity] = useState(1)
 
   // Add state for description expansion
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
 
   useEffect(() => {
-    setIsLiked(isFavorite(product.id));
-  }, [isFavorite, product.id]);
+    setIsLiked(isFavorite(product.id))
+  }, [isFavorite, product.id])
 
   // Calculate price based on weight
-  const piecePrice = 100; // Fixed price of 100 rupees per piece
-  const totalPrice =
-    orderType === "kg"
-      ? product.price * selectedWeight
-      : piecePrice * pieceQuantity;
+  const piecePrice = 100 // Fixed price of 100 rupees per piece
+  const totalPrice = orderType === "kg" ? product.price * selectedWeight : piecePrice * pieceQuantity
 
   // Handle favorite toggle
   const handleFavoriteToggle = () => {
@@ -449,16 +418,16 @@ export default function ProductPage() {
       isVeg: product.isVeg,
       description: product.description.para1 + " " + product.description.para2,
       rating: product.rating,
-    };
+    }
 
     if (isLiked) {
-      removeFromFavorites(product.id);
-      setIsLiked(false);
+      removeFromFavorites(product.id)
+      setIsLiked(false)
     } else {
-      addToFavorites(productData);
-      setIsLiked(true);
+      addToFavorites(productData)
+      setIsLiked(true)
     }
-  };
+  }
 
   // Handle add to cart
   const handleAddToCart = () => {
@@ -468,21 +437,29 @@ export default function ProductPage() {
         description: "This product is currently unavailable",
         variant: "destructive",
         duration: 3000,
-      });
-      return;
+      })
+      return
     }
 
-    addToCart({
+    const cartItem = {
       id: product.id,
       name: product.name,
       price: orderType === "kg" ? product.price : piecePrice,
       image: product.imageUrl,
-      quantity: orderType === "kg" ? 1 : pieceQuantity,
-      weight: orderType === "kg" ? selectedWeight : 1,
+      quantity: orderType === "kg" ? selectedWeight : pieceQuantity,
       category: product.category,
-      variant: orderType === "kg" ? "Regular" : "Piece",
-    });
-  };
+      variant: orderType === "kg" ? `${selectedWeight} Kg` : `${pieceQuantity} Piece${pieceQuantity > 1 ? "s" : ""}`,
+    }
+
+    addToCart(cartItem)
+
+    toast({
+      title: "Added to cart!",
+      description: `${product.name} has been added to your cart.`,
+      duration: 3000,
+      className: "bg-green-50 text-green-800 border-green-300 py-3",
+    })
+  }
 
   // Function to render stock status
   const renderStockStatus = () => {
@@ -492,27 +469,23 @@ export default function ProductPage() {
           <AlertCircle className="h-4 w-4" />
           <span className="text-sm font-medium">Out of Stock</span>
         </div>
-      );
+      )
     } else if (product.stock <= 3) {
       return (
         <div className="flex items-center gap-1.5 text-amber-600 mt-2">
           <AlertCircle className="h-4 w-4" />
-          <span className="text-sm font-medium">
-            Only {product.stock} left in stock - order soon
-          </span>
+          <span className="text-sm font-medium">Only {product.stock} left in stock - order soon</span>
         </div>
-      );
+      )
     } else {
       return (
         <div className="flex items-center gap-1.5 text-green-600 mt-2">
           <Package className="h-4 w-4" />
-          <span className="text-sm font-medium">
-            In Stock ({product.stock} available)
-          </span>
+          <span className="text-sm font-medium">In Stock ({product.stock} available)</span>
         </div>
-      );
+      )
     }
-  };
+  }
 
   // Function to calculate delivery time based on stock status
   const calculateDeliveryTime = () => {
@@ -522,7 +495,7 @@ export default function ProductPage() {
       Mumbai: 90,
       Bangalore: 75,
       Pune: 80,
-    };
+    }
 
     // Get delivery time for selected address
     const addresses = [
@@ -530,43 +503,41 @@ export default function ProductPage() {
       { label: "Work", address: "456 Park Ave, Mumbai, 400001" },
       { label: "Parents", address: "789 Lake Rd, Bangalore, 560001" },
       { label: "Other", address: "101 Hilltop, Pune, 411001" },
-    ];
+    ]
 
     // Default to first address if none selected
-    const selectedAddress = addresses[0];
+    const selectedAddress = addresses[0]
 
     // Determine city from address
-    const city = selectedAddress.address.split(",")[1]?.trim() || "New Delhi";
+    const city = selectedAddress.address.split(",")[1]?.trim() || "New Delhi"
     // Get base delivery time for the city
-    const baseTime = (city in baseDeliveryTimes ? baseDeliveryTimes[city as keyof typeof baseDeliveryTimes] : 60); // Default to 60 minutes if city not found
+    const baseTime = city in baseDeliveryTimes ? baseDeliveryTimes[city as keyof typeof baseDeliveryTimes] : 60 // Default to 60 minutes if city not found
 
     // Add 4 hours (240 minutes) if product is out of stock
-    const additionalTime = product.stock === 0 ? 240 : 0;
+    const additionalTime = product.stock === 0 ? 240 : 0
 
     // Total delivery time in minutes
-    const totalMinutes = baseTime + additionalTime;
+    const totalMinutes = baseTime + additionalTime
 
     // Convert to hours and minutes
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
 
     // Format the time string
-    let timeString = "";
+    let timeString = ""
     if (hours > 0) {
-      timeString += `${hours} hr${hours > 1 ? "s" : ""}`;
+      timeString += `${hours} hr${hours > 1 ? "s" : ""}`
     }
     if (minutes > 0) {
-      timeString += `${hours > 0 ? " " : ""}${minutes} min${
-        minutes > 1 ? "s" : ""
-      }`;
+      timeString += `${hours > 0 ? " " : ""}${minutes} min${minutes > 1 ? "s" : ""}`
     }
 
     return {
       totalMinutes,
       timeString,
       isDelayed: product.stock === 0,
-    };
-  };
+    }
+  }
 
   return (
     <>
@@ -584,6 +555,8 @@ export default function ProductPage() {
                     src={
                       mainImage ||
                       "/placeholder.svg?height=450&width=800&query=red velvet cake" ||
+                      "/placeholder.svg" ||
+                      "/placeholder.svg" ||
                       "/placeholder.svg"
                     }
                     alt={product.name}
@@ -628,15 +601,15 @@ export default function ProductPage() {
                         key={index}
                         onClick={() => setMainImage(image)}
                         className={`w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 ${
-                          mainImage === image
-                            ? "border-[#560000]"
-                            : "border-white"
+                          mainImage === image ? "border-[#560000]" : "border-white"
                         }`}
                       >
                         <Image
                           src={
                             image ||
                             "/placeholder.svg?height=64&width=64&query=cake thumbnail" ||
+                            "/placeholder.svg" ||
+                            "/placeholder.svg" ||
                             "/placeholder.svg"
                           }
                           alt={`${product.name} thumbnail ${index + 1}`}
@@ -654,22 +627,16 @@ export default function ProductPage() {
               <div className="p-8 bg-white rounded-2xl shadow-sm border border-gray-50">
                 {/* Category and Rating */}
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-gray-500 text-sm font-medium uppercase tracking-wide">
-                    {product.category}
-                  </span>
+                  <span className="text-gray-500 text-sm font-medium uppercase tracking-wide">{product.category}</span>
                   <div className="flex items-center bg-amber-50 px-3 py-1 rounded-full">
                     <FaStar className="text-amber-500 mr-1.5" />
-                    <span className="font-semibold text-amber-800">
-                      {product.rating}
-                    </span>
+                    <span className="font-semibold text-amber-800">{product.rating}</span>
                   </div>
                 </div>
 
                 {/* Product Name and Veg Indicator */}
                 <div className="flex justify-between items-center mb-2">
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    {product.name}
-                  </h1>
+                  <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
                   {product.isVeg && (
                     <div className="w-6 h-6 border-2 border-green-600 flex items-center justify-center rounded-sm">
                       <div className="w-3 h-3 bg-green-600 rounded-full"></div>
@@ -682,52 +649,33 @@ export default function ProductPage() {
 
                 {/* Description - Modified to show two paragraphs with initial truncation */}
                 <div className="mb-7 mt-4">
-                  <h2 className="font-semibold text-lg mb-3 text-gray-800">
-                    Description
-                  </h2>
+                  <h2 className="font-semibold text-lg mb-3 text-gray-800">Description</h2>
                   <div className="space-y-4">
                     {isDescriptionExpanded ? (
                       <>
-                        <p className="text-gray-700 leading-relaxed">
-                          {product.description.para1}
-                        </p>
-                        <p className="text-gray-700 leading-relaxed">
-                          {product.description.para2}
-                        </p>
+                        <p className="text-gray-700 leading-relaxed">{product.description.para1}</p>
+                        <p className="text-gray-700 leading-relaxed">{product.description.para2}</p>
                       </>
                     ) : (
-                      <p className="text-gray-700 leading-relaxed line-clamp-2">
-                        {product.description.para1}...
-                      </p>
+                      <p className="text-gray-700 leading-relaxed line-clamp-2">{product.description.para1}...</p>
                     )}
                   </div>
                   <button
-                    onClick={() =>
-                      setIsDescriptionExpanded(!isDescriptionExpanded)
-                    }
+                    onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
                     className="text-sm font-medium text-[#560000] hover:text-[#560000]/80 transition-colors flex items-center mt-3"
                   >
                     {isDescriptionExpanded ? "Read less" : "Read more"}
                     <ChevronRight
-                      className={`h-4 w-4 ml-1 transition-transform ${
-                        isDescriptionExpanded ? "rotate-90" : ""
-                      }`}
+                      className={`h-4 w-4 ml-1 transition-transform ${isDescriptionExpanded ? "rotate-90" : ""}`}
                     />
                   </button>
                 </div>
 
                 {/* Product Highlights / Tags */}
                 <div className="mb-6">
-                  <h2 className="font-semibold text-lg mb-3 text-gray-800">
-                    Highlights
-                  </h2>
+                  <h2 className="font-semibold text-lg mb-3 text-gray-800">Highlights</h2>
                   <div className="flex flex-wrap gap-2">
-                    {[
-                      "Bestseller",
-                      "Eggless Option",
-                      "100% Veg",
-                      "No Preservatives",
-                    ].map((tag) => (
+                    {["Bestseller", "Eggless Option", "100% Veg", "No Preservatives"].map((tag) => (
                       <span
                         key={tag}
                         className="bg-[#560000]/10 text-[#560000] px-4 py-1.5 rounded-full text-sm font-medium"
@@ -740,9 +688,7 @@ export default function ProductPage() {
 
                 {/* Ingredients Preview */}
                 <div>
-                  <h2 className="font-semibold text-lg mb-3 text-gray-800">
-                    Ingredients
-                  </h2>
+                  <h2 className="font-semibold text-lg mb-3 text-gray-800">Ingredients</h2>
                   <div className="flex flex-wrap gap-3 items-center">
                     <span className="bg-gray-100 px-3 py-2 rounded-full flex items-center text-sm hover:bg-gray-200 transition-colors cursor-pointer">
                       <Coffee className="h-4 w-4 mr-2 text-[#560000]" />
@@ -787,9 +733,7 @@ export default function ProductPage() {
               <div className="w-full bg-white rounded-3xl p-7 flex flex-col gap-5 h-fit shadow-sm">
                 {/* Price display */}
                 <div className="flex items-baseline gap-3 md:flex">
-                  <h2 className="text-3xl font-bold text-black md:block hidden">
-                    ₹{Math.round(totalPrice)}
-                  </h2>
+                  <h2 className="text-3xl font-bold text-black md:block hidden">₹{Math.round(totalPrice)}</h2>
                   {totalPrice > 500 && (
                     <p className="text-gray-400 line-through text-lg md:block hidden">
                       ₹{Math.round(totalPrice * 1.1)}
@@ -810,9 +754,7 @@ export default function ProductPage() {
                     <button
                       onClick={() => setOrderType("kg")}
                       className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all ${
-                        orderType === "kg"
-                          ? "bg-white text-[#560000] shadow-sm"
-                          : "text-gray-500 hover:text-gray-700"
+                        orderType === "kg" ? "bg-white text-[#560000] shadow-sm" : "text-gray-500 hover:text-gray-700"
                       }`}
                     >
                       By Weight
@@ -833,9 +775,7 @@ export default function ProductPage() {
                 {/* Weight/Quantity Selection */}
                 {orderType === "kg" ? (
                   <div>
-                    <h2 className="text-gray-500 text-sm mb-3">
-                      Select Weight
-                    </h2>
+                    <h2 className="text-gray-500 text-sm mb-3">Select Weight</h2>
                     <div className="grid grid-cols-3 gap-2">
                       {weightOptions.map((option) => (
                         <button
@@ -854,27 +794,19 @@ export default function ProductPage() {
                   </div>
                 ) : (
                   <div>
-                    <h2 className="text-gray-500 text-sm mb-3">
-                      Select Quantity
-                    </h2>
+                    <h2 className="text-gray-500 text-sm mb-3">Select Quantity</h2>
                     <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
                       <button
-                        onClick={() =>
-                          setPieceQuantity(Math.max(1, pieceQuantity - 1))
-                        }
+                        onClick={() => setPieceQuantity(Math.max(1, pieceQuantity - 1))}
                         className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${
-                          pieceQuantity > 1
-                            ? "bg-[#560000] text-white shadow-sm"
-                            : "text-gray-300 cursor-not-allowed"
+                          pieceQuantity > 1 ? "bg-[#560000] text-white shadow-sm" : "text-gray-300 cursor-not-allowed"
                         }`}
                         disabled={pieceQuantity <= 1}
                         aria-label="Decrease quantity"
                       >
                         -
                       </button>
-                      <span className="text-xl font-medium text-gray-900">
-                        {pieceQuantity}
-                      </span>
+                      <span className="text-xl font-medium text-gray-900">{pieceQuantity}</span>
                       <button
                         onClick={() => setPieceQuantity(pieceQuantity + 1)}
                         className="w-9 h-9 rounded-lg bg-[#560000] text-white flex items-center justify-center text-lg shadow-sm"
@@ -889,32 +821,22 @@ export default function ProductPage() {
                 {/* Delivery estimate */}
                 <div
                   className={`flex items-center gap-3 p-4 rounded-xl ${
-                    calculateDeliveryTime().isDelayed
-                      ? "bg-amber-50"
-                      : "bg-gray-50"
+                    calculateDeliveryTime().isDelayed ? "bg-amber-50" : "bg-gray-50"
                   }`}
                 >
                   <Truck
-                    className={`h-5 w-5 ${
-                      calculateDeliveryTime().isDelayed
-                        ? "text-amber-500"
-                        : "text-gray-400"
-                    }`}
+                    className={`h-5 w-5 ${calculateDeliveryTime().isDelayed ? "text-amber-500" : "text-gray-400"}`}
                   />
                   <div>
                     <p className="text-sm text-gray-900 font-medium">
-                      {calculateDeliveryTime().isDelayed
-                        ? "Extended Delivery Time"
-                        : "Delivery Today"}
+                      {calculateDeliveryTime().isDelayed ? "Extended Delivery Time" : "Delivery Today"}
                     </p>
                     <p className="text-xs text-gray-500">
                       {calculateDeliveryTime().isDelayed
                         ? `Estimated delivery in ${
                             calculateDeliveryTime().timeString
                           } (additional 4 hrs for restocking)`
-                        : `Estimated delivery in ${
-                            calculateDeliveryTime().timeString
-                          }`}
+                        : `Estimated delivery in ${calculateDeliveryTime().timeString}`}
                     </p>
                   </div>
                 </div>
@@ -924,9 +846,7 @@ export default function ProductPage() {
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
                   className={`text-white rounded-xl px-6 py-4 items-center justify-center font-medium text-base transition-all hidden md:flex ${
-                    product.stock === 0
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-[#560000] hover:bg-[#560000]/90"
+                    product.stock === 0 ? "bg-gray-400 cursor-not-allowed" : "bg-[#560000] hover:bg-[#560000]/90"
                   }`}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
@@ -936,16 +856,12 @@ export default function ProductPage() {
 
               {/* Card 2: Nutrition Info (move to right section on desktop) */}
               <div className="p-6 bg-white rounded-2xl shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                  Macronutrients Breakdown
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Macronutrients Breakdown</h2>
                 <div>
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-sm text-gray-500">Calories</p>
-                      <p className="text-3xl font-bold text-gray-800">
-                        360 Cal
-                      </p>
+                      <p className="text-3xl font-bold text-gray-800">360 Cal</p>
                     </div>
                     <div className="text-sm font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-lg">
                       Net wt: 100 g
@@ -969,13 +885,7 @@ export default function ProductPage() {
                     </div>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <Image
-                          src="/svg/food/bread.svg"
-                          alt="Carbs"
-                          width={20}
-                          height={20}
-                          className="w-5 h-5"
-                        />
+                        <Image src="/svg/food/bread.svg" alt="Carbs" width={20} height={20} className="w-5 h-5" />
                         <span>Carbs</span>
                       </div>
                       <span>46.0 g</span>
@@ -1008,35 +918,25 @@ export default function ProductPage() {
           </div>
           <CakeDeliveryCard stock={product.stock} />
           {/* Price and Add to Cart - Sticky at bottom for screens < 767px */}
-          <div className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between z-40 md:hidden">
+          <div className="fixed bottom-20 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between z-40 md:hidden">
             <div>
               <p className="text-gray-500 text-sm">Total Price</p>
-              <p className="text-xl font-bold text-gray-900">
-                ₹{Math.round(totalPrice)}
-              </p>
+              <p className="text-xl font-bold text-gray-900">₹{Math.round(totalPrice)}</p>
               {/* Mobile Stock Status */}
-              {product.stock === 0 && (
-                <p className="text-xs font-medium text-red-600">Out of Stock</p>
-              )}
+              {product.stock === 0 && <p className="text-xs font-medium text-red-600">Out of Stock</p>}
               {product.stock > 0 && product.stock <= 3 && (
-                <p className="text-xs font-medium text-amber-600">
-                  Only {product.stock} left
-                </p>
+                <p className="text-xs font-medium text-amber-600">Only {product.stock} left</p>
               )}
             </div>
             <button
               onClick={handleAddToCart}
               disabled={product.stock === 0}
               className={`rounded-full px-6 py-3 flex items-center gap-2 ${
-                product.stock === 0
-                  ? "bg-gray-400 text-white cursor-not-allowed"
-                  : "bg-[#560000] text-white"
+                product.stock === 0 ? "bg-gray-400 text-white cursor-not-allowed" : "bg-[#560000] text-white"
               }`}
             >
               <ShoppingCart className="h-5 w-5" />
-              <span className="font-medium">
-                {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-              </span>
+              <span className="font-medium">{product.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
             </button>
           </div>
           {/* Add padding at the bottom to account for the sticky button on mobile only */}
@@ -1045,5 +945,5 @@ export default function ProductPage() {
       </div>
       <Toaster />
     </>
-  );
+  )
 }

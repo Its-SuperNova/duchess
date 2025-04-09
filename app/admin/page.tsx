@@ -94,16 +94,6 @@ const recentOrders = [
   },
 ]
 
-const revenueData = [
-  { name: "Mon", revenue: 1200 },
-  { name: "Tue", revenue: 1800 },
-  { name: "Wed", revenue: 1600 },
-  { name: "Thu", revenue: 2200 },
-  { name: "Fri", revenue: 1800 },
-  { name: "Sat", revenue: 2400 },
-  { name: "Sun", revenue: 2800 },
-]
-
 const topProducts = [
   {
     name: "Strawberry Cheesecake",
@@ -168,14 +158,14 @@ const getStatusColor = (status: string) => {
 
 export default function AdminDashboard() {
   return (
-    <div className="flex-1 space-y-6 p-6 md:p-8">
+    <div className="flex-1 space-y-6 p-4 md:p-6 overflow-auto">
       {/* Page Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back to your admin dashboard.</p>
         </div>
-        <div className="flex items-center gap-2 mt-2 sm:mt-0">
+        <div className="flex flex-col sm:flex-row items-center gap-2 mt-2 sm:mt-0">
           <Button variant="outline" size="sm" className="h-9 w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Download Report
@@ -187,15 +177,15 @@ export default function AdminDashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 lg:grid-cols-4">
         {summaryCards.map((card, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
+          <Card key={index} className="overflow-hidden">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-2xl font-bold">{card.value}</p>
+                    <p className="text-xl sm:text-2xl font-bold">{card.value}</p>
                     <span
                       className={`flex items-center text-xs font-medium ${
                         card.trend === "up" ? "text-green-600" : "text-red-600"
@@ -220,19 +210,19 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
         {/* Left Column (Orders & Chart) */}
-        <div className="space-y-6 lg:col-span-5">
+        <div className="space-y-6 lg:col-span-2">
           {/* Revenue Chart */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4">
               <div>
                 <CardTitle>Revenue Overview</CardTitle>
                 <CardDescription>Daily revenue for the past week</CardDescription>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     Last 7 days <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -244,10 +234,12 @@ export default function AdminDashboard() {
               </DropdownMenu>
             </CardHeader>
             <CardContent>
-              <div className="h-[350px] w-full bg-muted/20 rounded-md flex items-center justify-center">
+              <div className="h-[250px] sm:h-[350px] w-full bg-muted/20 rounded-md flex items-center justify-center">
                 <div className="text-center p-4">
                   <h3 className="text-lg font-medium mb-2">Revenue Chart</h3>
-                  <p className="text-muted-foreground">Revenue data visualization is available in the full version.</p>
+                  <p className="text-muted-foreground text-sm">
+                    Revenue data visualization is available in the full version.
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -260,65 +252,67 @@ export default function AdminDashboard() {
               <CardDescription>You have {recentOrders.length} orders this week</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <Table className="admin-table">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="hidden sm:table-cell">Order ID</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead className="hidden sm:table-cell">Amount</TableHead>
-                      <TableHead className="hidden md:table-cell">Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentOrders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium hidden sm:table-cell">{order.id}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-8 w-8 hidden sm:flex">
-                              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${order.customer}`} />
-                              <AvatarFallback>{order.customer.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-sm font-medium leading-none">{order.customer}</p>
-                              <p className="text-xs text-muted-foreground">{order.email}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">{order.amount}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <Badge className={getStatusColor(order.status)} variant="outline">
-                            {order.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{order.date}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Actions</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>View details</DropdownMenuItem>
-                              <DropdownMenuItem>Update status</DropdownMenuItem>
-                              <DropdownMenuItem>Contact customer</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                  <Table className="min-w-full">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="hidden sm:table-cell">Order ID</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead className="hidden sm:table-cell">Amount</TableHead>
+                        <TableHead className="hidden md:table-cell">Status</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {recentOrders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium hidden sm:table-cell">{order.id}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8 hidden sm:flex">
+                                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${order.customer}`} />
+                                <AvatarFallback>{order.customer.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="text-sm font-medium leading-none">{order.customer}</p>
+                                <p className="text-xs text-muted-foreground hidden xs:block">{order.email}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">{order.amount}</TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge className={getStatusColor(order.status)} variant="outline">
+                              {order.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{order.date}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Actions</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem>View details</DropdownMenuItem>
+                                <DropdownMenuItem>Update status</DropdownMenuItem>
+                                <DropdownMenuItem>Contact customer</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </CardContent>
-            <CardFooter className="flex items-center justify-between border-t px-6 py-4">
-              <p className="text-sm text-muted-foreground">Showing 5 of 24 orders</p>
-              <Button variant="outline" size="sm">
+            <CardFooter className="flex flex-col xs:flex-row items-center justify-between border-t px-4 py-4 sm:px-6">
+              <p className="text-sm text-muted-foreground mb-2 xs:mb-0">Showing 5 of 24 orders</p>
+              <Button variant="outline" size="sm" className="w-full xs:w-auto">
                 View All Orders
               </Button>
             </CardFooter>
@@ -326,7 +320,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Right Column (Top Products & Activity) */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-6">
           {/* Top Selling Products */}
           <Card>
             <CardHeader>
@@ -336,17 +330,18 @@ export default function AdminDashboard() {
             <CardContent className="space-y-6">
               {topProducts.map((product, index) => (
                 <div key={index} className="flex items-center gap-4">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-md">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-md flex-shrink-0">
                     <img
                       src={product.image || "/placeholder.svg"}
                       alt={product.name}
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-medium">{product.name}</h4>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-medium truncate">{product.name}</h4>
                     <div className="mt-1 flex items-center text-sm text-muted-foreground">
-                      <ShoppingCart className="mr-1 h-3 w-3" /> {product.sales} sales
+                      <ShoppingCart className="mr-1 h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">{product.sales} sales</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between">
                       <span className="text-sm font-medium text-blue-600">{product.revenue}</span>
@@ -362,7 +357,7 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </CardContent>
-            <CardFooter className="border-t px-6 py-4">
+            <CardFooter className="border-t px-4 py-4 sm:px-6">
               <Button variant="outline" className="w-full">
                 View All Products
               </Button>
@@ -386,15 +381,15 @@ export default function AdminDashboard() {
                       <div className="absolute bottom-0 left-1/2 top-8 -ml-px border-l border-dashed border-muted-foreground/20" />
                     )}
                   </div>
-                  <div className="flex flex-col">
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-sm text-muted-foreground">{activity.description}</p>
+                  <div className="flex flex-col min-w-0">
+                    <p className="text-sm font-medium truncate">{activity.action}</p>
+                    <p className="text-sm text-muted-foreground truncate">{activity.description}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{activity.time}</p>
                   </div>
                 </div>
               ))}
             </CardContent>
-            <CardFooter className="border-t px-6 py-4">
+            <CardFooter className="border-t px-4 py-4 sm:px-6">
               <Button variant="ghost" className="w-full">
                 View All Activity
               </Button>
