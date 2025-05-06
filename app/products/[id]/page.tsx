@@ -1,34 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaStar, FaHeart, FaRegHeart, FaShare } from "react-icons/fa";
 import { BsArrowLeft } from "react-icons/bs";
 import { useParams, useRouter } from "next/navigation";
-import { useFavorites, type Product } from "@/context/favorites-context";
-import { useCart } from "@/context/cart-context";
-import { useEffect } from "react";
+import type { Product } from "@/context/favorites-context";
 import {
-  Shell,
-  Candy,
-  Dumbbell,
-  Droplet,
-  Wheat,
-  CircleDot,
-} from "lucide-react";
-import {
-  Calendar,
-  Check,
-  Flame,
-  Gift,
-  MessageSquare,
-  Pencil,
-  Utensils,
   Truck,
+  Coffee,
+  Apple,
+  Egg,
+  ChevronRight,
+  ShoppingCart,
+  CheckCircle2,
+  Droplet,
+  CircleDot,
+  Dumbbell,
+  Candy,
+  Wheat,
+  Shell,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-// Mock product data (in a real app, this would come from an API or database)
+import CakeDeliveryCard from "./cake-delivery-card";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+
+// Enhanced product data with two-paragraph descriptions
 const productData = [
   {
     id: 1,
@@ -38,8 +35,12 @@ const productData = [
     price: 499,
     category: "Cake",
     isVeg: true,
-    description:
-      "Layered with creamy cheesecake, made with cocoa, cream cheese, and vanilla. The perfect balance of sweetness with a hint of cocoa flavor. A classic dessert perfect for any occasion.",
+    description: {
+      para1:
+        "Layered with creamy cheesecake, made with cocoa, cream cheese, and vanilla. The perfect balance of sweetness with a hint of cocoa flavor.",
+      para2:
+        "A classic dessert perfect for any occasion. Our red velvet cake is made with premium ingredients and baked fresh daily to ensure the best taste and texture.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Baker",
@@ -61,8 +62,12 @@ const productData = [
     price: 299,
     category: "Pastry",
     isVeg: true,
-    description:
-      "Crisp choux pastry filled with rich chocolate cream and topped with chocolate glaze. Hand-crafted with premium ingredients for an authentic French pastry experience.",
+    description: {
+      para1:
+        "Crisp choux pastry filled with rich chocolate cream and topped with chocolate glaze. Hand-crafted with premium ingredients.",
+      para2:
+        "Experience an authentic French pastry that melts in your mouth. Each eclair is carefully prepared by our pastry chefs using traditional techniques.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Chef",
@@ -84,8 +89,12 @@ const productData = [
     price: 549,
     category: "Cake",
     isVeg: true,
-    description:
-      "Creamy cheesecake with a graham cracker crust topped with fresh strawberry compote. Made with premium cream cheese and fresh seasonal strawberries.",
+    description: {
+      para1:
+        "Creamy cheesecake with a graham cracker crust topped with fresh strawberry compote. Made with premium cream cheese.",
+      para2:
+        "We use only fresh seasonal strawberries to create the perfect balance of sweet and tangy flavors. Our cheesecake is baked slowly for the perfect texture.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Pastry Chef",
@@ -107,8 +116,12 @@ const productData = [
     price: 349,
     category: "Tart",
     isVeg: true,
-    description:
-      "Buttery pastry shell filled with tangy lemon curd and dusted with powdered sugar. The perfect balance of sweet and tart flavors in every bite.",
+    description: {
+      para1:
+        "Buttery pastry shell filled with tangy lemon curd and dusted with powdered sugar. The perfect balance of sweet and tart flavors.",
+      para2:
+        "Each bite delivers a burst of citrus that's both refreshing and indulgent. Our lemon tarts are made fresh daily using organic lemons and free-range eggs.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Baker",
@@ -130,8 +143,12 @@ const productData = [
     price: 399,
     category: "Macaron",
     isVeg: true,
-    description:
-      "Delicate almond meringue cookies filled with raspberry buttercream. Light, airy cookies with a chewy center and crisp exterior. Made with almond flour and natural raspberry flavor.",
+    description: {
+      para1:
+        "Delicate almond meringue cookies filled with raspberry buttercream. Light, airy cookies with a chewy center and crisp exterior.",
+      para2:
+        "Made with almond flour and natural raspberry flavor. Our macarons are aged for 24 hours to develop the perfect texture and flavor profile.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Patissier",
@@ -153,8 +170,12 @@ const productData = [
     price: 249,
     category: "Cookie",
     isVeg: true,
-    description:
-      "Classic cookies loaded with premium chocolate chips and baked to golden perfection. Crisp edges with a soft, chewy center. Made with real butter and premium chocolate.",
+    description: {
+      para1:
+        "Classic cookies loaded with premium chocolate chips and baked to golden perfection. Crisp edges with a soft, chewy center.",
+      para2:
+        "Made with real butter and premium chocolate. Each batch is carefully monitored to ensure the perfect balance of chewiness and crunch.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Baker",
@@ -176,8 +197,12 @@ const productData = [
     price: 449,
     category: "Cake",
     isVeg: true,
-    description:
-      "Light and fluffy vanilla sponge cake with smooth buttercream frosting. Made with Madagascar vanilla beans for exceptional flavor. Perfect for birthdays and celebrations.",
+    description: {
+      para1:
+        "Light and fluffy vanilla sponge cake with smooth buttercream frosting. Made with Madagascar vanilla beans for exceptional flavor.",
+      para2:
+        "Perfect for birthdays and celebrations. Our vanilla cake is a timeless classic that appeals to all ages and can be customized with your favorite decorations.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Cake Artist",
@@ -199,8 +224,12 @@ const productData = [
     price: 299,
     category: "Brownie",
     isVeg: true,
-    description:
-      "Rich, fudgy chocolate brownie with a crackly top and gooey center. Made with premium Belgian chocolate for an intense chocolate experience. Perfect indulgence for chocolate lovers.",
+    description: {
+      para1:
+        "Rich, fudgy chocolate brownie with a crackly top and gooey center. Made with premium Belgian chocolate for an intense chocolate experience.",
+      para2:
+        "Perfect indulgence for chocolate lovers. Our brownies are baked to perfection - not too cakey, not too fudgy, but just right for that ultimate chocolate satisfaction.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Pastry Chef",
@@ -222,8 +251,12 @@ const productData = [
     price: 279,
     category: "Cupcake",
     isVeg: true,
-    description:
-      "Moist vanilla cupcake topped with strawberry buttercream and fresh strawberry. Made with real strawberries for natural flavor and color. A delightful individual treat.",
+    description: {
+      para1:
+        "Moist vanilla cupcake topped with strawberry buttercream and fresh strawberry. Made with real strawberries for natural flavor and color.",
+      para2:
+        "A delightful individual treat perfect for any occasion. Each cupcake is topped with a swirl of strawberry buttercream and garnished with a fresh strawberry slice.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Baker",
@@ -245,8 +278,12 @@ const productData = [
     price: 349,
     category: "Bread",
     isVeg: true,
-    description:
-      "Artisanal sourdough bread with a crispy crust and chewy interior. Made with a 100-year-old starter for complex flavor. Fermented for 24 hours for improved digestibility.",
+    description: {
+      para1:
+        "Artisanal sourdough bread with a crispy crust and chewy interior. Made with a 100-year-old starter for complex flavor.",
+      para2:
+        "Fermented for 24 hours for improved digestibility. Our sourdough is made using traditional methods with just flour, water, salt, and our signature sourdough culture.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Baker",
@@ -268,8 +305,12 @@ const productData = [
     price: 599,
     category: "Cake",
     isVeg: true,
-    description:
-      "Rich chocolate cake with almond flour, topped with ganache and toasted almonds. Gluten-friendly and incredibly moist. The perfect combination of chocolate and nuts.",
+    description: {
+      para1:
+        "Rich chocolate cake with almond flour, topped with ganache and toasted almonds. Gluten-friendly and incredibly moist.",
+      para2:
+        "The perfect combination of chocolate and nuts. This cake offers a sophisticated flavor profile that's perfect for special occasions or as an elegant dessert option.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Chef",
@@ -291,8 +332,12 @@ const productData = [
     price: 799,
     category: "Cake",
     isVeg: true,
-    description:
-      "Festive layered cake with colorful sprinkles, perfect for special occasions. Three layers of vanilla sponge with buttercream frosting. Decorated with rainbow sprinkles for a festive look.",
+    description: {
+      para1:
+        "Festive layered cake with colorful sprinkles, perfect for special occasions. Three layers of vanilla sponge with buttercream frosting.",
+      para2:
+        "Decorated with rainbow sprinkles for a festive look. This cake is designed to be the centerpiece of your celebration and can be customized with a personalized message.",
+    },
     seller: {
       name: "Jenny Wilson",
       role: "Cake Designer",
@@ -320,52 +365,67 @@ const weightOptions = [
 export default function ProductPage() {
   const router = useRouter();
   const params = useParams();
-  const productId = Number(params?.id);
+  const productId = Number(params?.id) || 1; // Default to product ID 1 if no ID is provided
+  const { toast } = useToast();
 
   // Find the product
-  const product = productData.find((p) => p.id === productId);
+  const product = productData.find((p) => p.id === productId) || productData[0];
 
-  // If product not found
-  if (!product) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen ">
-        <h1 className="text-2xl font-bold mb-4">Product not found</h1>
-        <button
-          onClick={() => router.push("/")}
-          className="bg-primary text-white px-4 py-2 rounded-lg"
-        >
-          Go Back Home
-        </button>
-      </div>
-    );
-  }
+  // Mock implementations of context hooks
+  const useFavoritesImpl = () => {
+    const [favorites, setFavorites] = useState<number[]>([]);
 
-  const { addToCart } = useCart();
+    return {
+      isFavorite: (id: number) => favorites.includes(id),
+      addToFavorites: (product: Product) => {
+        setFavorites((prev) => [...prev, product.id]);
+      },
+      removeFromFavorites: (id: number) => {
+        setFavorites((prev) => prev.filter((favId) => favId !== id));
+      },
+    };
+  };
+
+  const useCartImpl = () => {
+    return {
+      addToCart: (item: any) => {
+        console.log("Added to cart:", item);
+        toast({
+          title: "Added to cart!",
+          description: `${product.name} has been added to your cart.`,
+          duration: 3000,
+          className: "bg-green-50 text-green-800 border-green-300 py-3",
+        });
+      },
+    };
+  };
+
+  const { addToCart } = useCartImpl();
+  const { isFavorite, addToFavorites, removeFromFavorites } =
+    useFavoritesImpl();
 
   // State for selected weight and main image
   const [selectedWeight, setSelectedWeight] = useState<number>(1);
   const [mainImage, setMainImage] = useState(product.imageUrl);
-  const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites();
   const [isLiked, setIsLiked] = useState(isFavorite(product.id));
 
   // Add state for order type and piece quantity
   const [orderType, setOrderType] = useState<"kg" | "piece">("kg");
   const [pieceQuantity, setPieceQuantity] = useState(1);
 
-  // Add state for cake text and checkbox
-  const [addCakeText, setAddCakeText] = useState(false);
-  const [cakeText, setCakeText] = useState("");
-  const maxCakeTextLength = 10;
+  // Add state for description expansion
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     setIsLiked(isFavorite(product.id));
   }, [isFavorite, product.id]);
 
   // Calculate price based on weight
+  const piecePrice = 100; // Fixed price of 100 rupees per piece
   const totalPrice =
     orderType === "kg"
       ? product.price * selectedWeight
-      : product.price * pieceQuantity;
+      : piecePrice * pieceQuantity;
 
   // Handle favorite toggle
   const handleFavoriteToggle = () => {
@@ -375,7 +435,7 @@ export default function ProductPage() {
       price: product.price,
       image: product.imageUrl,
       isVeg: product.isVeg,
-      description: product.description,
+      description: product.description.para1 + " " + product.description.para2,
       rating: product.rating,
     };
 
@@ -393,437 +453,442 @@ export default function ProductPage() {
     addToCart({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: orderType === "kg" ? product.price : piecePrice,
       image: product.imageUrl,
       quantity: orderType === "kg" ? 1 : pieceQuantity,
       weight: orderType === "kg" ? selectedWeight : 1,
       category: product.category,
       variant: orderType === "kg" ? "Regular" : "Piece",
-      ...(addCakeText && cakeText ? { cakeText } : {}),
     });
-
-    // Show a toast or notification here
-    alert(`Added ${product.name} to cart!`);
   };
 
   return (
-    <div className="bg-[#f5f5f5]">
-      <div className="max-w-[1300px] flex flex-col min-h-screen mb-20 mx-4">
-        {/* Main content: two columns on desktop, one column on mobile */}
-        <div className="flex flex-col md:flex-row md:gap-8 md:p-8 flex-1">
-          {/* Left column */}
-          <div className="md:w-2/3 flex flex-col gap-6">
-            {/* Top navigation and Hero Image */}
-            <div className="relative mt-4 rounded-2xl overflow-hidden">
-              {/* Hero Image */}
-              <div className="relative h-[350px] lg:h-[450px] w-full rounded-2xl overflow-hidden">
-                <Image
-                  src={mainImage || "/placeholder.svg"}
-                  alt={product.name}
-                  fill
-                  priority
-                  className="object-cover rounded-2xl"
-                />
+    <>
+      <div className="bg-[#f5f5f5] flex flex-col items-center">
+        <div className="max-w-[1300px] flex flex-col min-h-screen mb-20 mx-4">
+          {/* Main content: two columns on desktop, one column on mobile */}
+          <div className="flex flex-col md:flex-row md:gap-8 md:p-8 flex-1">
+            {/* Left column */}
+            <div className="md:w-2/3 flex flex-col gap-6">
+              {/* Top navigation and Hero Image */}
+              <div className="relative mt-4 rounded-2xl overflow-hidden">
+                {/* Hero Image */}
+                <div className="relative h-[350px] lg:h-[450px] w-full rounded-2xl overflow-hidden">
+                  <Image
+                    src={
+                      mainImage ||
+                      "/placeholder.svg?height=450&width=800&query=red velvet cake"
+                    }
+                    alt={product.name}
+                    fill
+                    priority
+                    className="object-cover rounded-2xl"
+                  />
 
-                {/* Nav buttons */}
-                <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
-                  <button
-                    onClick={() => router.back()}
-                    className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md"
-                  >
-                    <BsArrowLeft className="text-gray-800" size={20} />
-                  </button>
-
-                  <div className="flex gap-3">
+                  {/* Nav buttons */}
+                  <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
                     <button
-                      onClick={handleFavoriteToggle}
+                      onClick={() => router.back()}
                       className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md"
                     >
-                      {isLiked ? (
-                        <FaHeart className="text-red-500" size={20} />
-                      ) : (
-                        <FaRegHeart className="text-gray-800" size={20} />
-                      )}
+                      <BsArrowLeft className="text-gray-800" size={20} />
                     </button>
 
-                    <button className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md">
-                      <FaShare className="text-gray-800" size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Image thumbnails */}
-              <div className="absolute bottom-3 left-0 right-0 px-3">
-                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 px-1">
-                  {product.images.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setMainImage(image)}
-                      className={`w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 ${
-                        mainImage === image ? "border-primary" : "border-white"
-                      }`}
-                    >
-                      <Image
-                        src={image || "/placeholder.svg"}
-                        alt={`${product.name} thumbnail ${index + 1}`}
-                        width={64}
-                        height={64}
-                        className="object-cover w-full h-full"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Product Info Section */}
-            <div className="p-6  bg-white rounded-2xl shadow-sm">
-              {/* Category and Rating */}
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">{product.category}</span>
-                <div className="flex items-center">
-                  <FaStar className="text-yellow-400 mr-1" />
-                  <span>{product.rating}</span>
-                </div>
-              </div>
-
-              {/* Product Name and Veg Indicator */}
-              <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">{product.name}</h1>
-                {product.isVeg && (
-                  <div className="w-5 h-5 border-2 border-green-600 flex items-center justify-center rounded-sm">
-                    <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
-                  </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <div className="mb-6 mt-2">
-                <h2 className="font-semibold text-lg mb-2">Description</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-2 line-clamp-3">
-                  {product.description}
-                </p>
-                <button className="text-amber-700 dark:text-amber-500 font-medium">
-                  Read more
-                </button>
-              </div>
-
-              {/* Product Highlights / Tags */}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {[
-                  "Bestseller",
-                  "Eggless Option",
-                  "100% Veg",
-                  "No Preservatives",
-                ].map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Ingredients Preview */}
-              <div className="flex flex-wrap gap-2 mt-3 items-center">
-                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
-                  <span className="mr-1">🍫</span>Cocoa
-                </span>
-                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
-                  <span className="mr-1">🧀</span>Cheese
-                </span>
-                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
-                  <span className="mr-1">🍓</span>Strawberry
-                </span>
-                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
-                  <span className="mr-1">🥚</span>Eggless
-                </span>
-              </div>
-            </div>
-
-            <Card className="w-full bg-white shadow-md rounded-xl">
-              <div className="pt-6"></div>
-              <CardContent className="grid gap-6">
-                {/* Two-column layout for desktop, stack on mobile */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left column - Delivery Options */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Delivery Options</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-2">
-                        <Check className="h-5 w-5 text-green-500 mt-0.5" />
-                        <span>Same-day delivery available</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
-                        <span>Schedule for later</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Truck className="h-5 w-5 text-gray-500 mt-0.5" />
-                        <span className="font-medium">
-                          Estimated delivery: Today, 5-7pm
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right column - Customization */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Customization</h3>
-                    <div className="grid gap-3">
-                      <div className="flex items-start gap-2">
-                        <Pencil className="h-5 w-5 text-gray-500 mt-0.5" />
-                        <span>Add text on cake</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Flame className="h-5 w-5 text-gray-500 mt-0.5" />
-                        <span>Add candles</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Utensils className="h-5 w-5 text-gray-500 mt-0.5" />
-                        <span>Add knife</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <MessageSquare className="h-5 w-5 text-gray-500 mt-0.5" />
-                        <span>Add message card</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Separator spanning full width */}
-                <Separator />
-
-                {/* Offers section at the bottom */}
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">Offers</h3>
-                  <div className="flex items-start gap-2 bg-green-50 p-3 rounded-md">
-                    <Gift className="h-5 w-5 text-green-600 mt-0.5" />
-                    <span className="font-medium text-green-700">
-                      10% off on orders above ₹1000
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right column (Weight, Price, Add to Cart) - only on md and up */}
-          <div className="hidden md:flex md:w-1/3 flex-col gap-6">
-            {/* Card 1: Order Type, Select Weight/Quantity, Price, Add to Cart */}
-            <div className="w-full bg-white dark:bg-gray-900 rounded-2xl p-6 flex flex-col gap-6 h-fit mt-8 shadow-sm">
-              {/* Order Type */}
-              <div className="mb-4">
-                <h2 className="font-semibold text-lg mb-2">Order Type</h2>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                      type="radio"
-                      name="orderType"
-                      value="kg"
-                      checked={orderType === "kg"}
-                      onChange={() => setOrderType("kg")}
-                      className="accent-amber-800"
-                    />
-                    By Kg
-                  </label>
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                      type="radio"
-                      name="orderType"
-                      value="piece"
-                      checked={orderType === "piece"}
-                      onChange={() => setOrderType("piece")}
-                      className="accent-amber-800"
-                    />
-                    By Piece
-                  </label>
-                </div>
-              </div>
-              {/* Weight/Quantity Selection */}
-              {orderType === "kg" ? (
-                <div className="mb-6">
-                  <h2 className="font-semibold text-lg mb-2">Select Weight</h2>
-                  <div className="flex gap-3 flex-wrap">
-                    {weightOptions.map((option) => (
+                    <div className="flex gap-3">
                       <button
-                        key={option.value}
-                        onClick={() => setSelectedWeight(option.value)}
-                        className={`px-4 py-2 rounded-lg border ${
-                          selectedWeight === option.value
-                            ? "bg-amber-800 text-white border-amber-800"
-                            : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                        onClick={handleFavoriteToggle}
+                        className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md"
+                      >
+                        {isLiked ? (
+                          <FaHeart className="text-red-500" size={20} />
+                        ) : (
+                          <FaRegHeart className="text-gray-800" size={20} />
+                        )}
+                      </button>
+
+                      <button className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md">
+                        <FaShare className="text-gray-800" size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image thumbnails */}
+                <div className="absolute bottom-3 left-0 right-0 px-3">
+                  <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 px-1">
+                    {product.images.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setMainImage(image)}
+                        className={`w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 ${
+                          mainImage === image
+                            ? "border-[#560000]"
+                            : "border-white"
                         }`}
                       >
-                        {option.label}
+                        <Image
+                          src={
+                            image ||
+                            "/placeholder.svg?height=64&width=64&query=cake thumbnail"
+                          }
+                          alt={`${product.name} thumbnail ${index + 1}`}
+                          width={64}
+                          height={64}
+                          className="object-cover w-full h-full"
+                        />
                       </button>
                     ))}
                   </div>
                 </div>
-              ) : (
-                <div className="mb-6">
-                  <h2 className="font-semibold text-lg mb-2">
-                    Select Quantity
-                  </h2>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() =>
-                        setPieceQuantity(Math.max(1, pieceQuantity - 1))
-                      }
-                      className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg font-bold"
-                      aria-label="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <span className="text-lg font-semibold w-8 text-center">
-                      {pieceQuantity}
+              </div>
+
+              {/* Product Info Section - Enhanced */}
+              <div className="p-8 bg-white rounded-2xl shadow-sm border border-gray-50">
+                {/* Category and Rating */}
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-gray-500 text-sm font-medium uppercase tracking-wide">
+                    {product.category}
+                  </span>
+                  <div className="flex items-center bg-amber-50 px-3 py-1 rounded-full">
+                    <FaStar className="text-amber-500 mr-1.5" />
+                    <span className="font-semibold text-amber-800">
+                      {product.rating}
                     </span>
+                  </div>
+                </div>
+
+                {/* Product Name and Veg Indicator */}
+                <div className="flex justify-between items-center mb-5">
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {product.name}
+                  </h1>
+                  {product.isVeg && (
+                    <div className="w-6 h-6 border-2 border-green-600 flex items-center justify-center rounded-sm">
+                      <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description - Modified to show two paragraphs with initial truncation */}
+                <div className="mb-7 mt-2">
+                  <h2 className="font-semibold text-lg mb-3 text-gray-800">
+                    Description
+                  </h2>
+                  <div className="space-y-4">
+                    {isDescriptionExpanded ? (
+                      <>
+                        <p className="text-gray-700 leading-relaxed">
+                          {product.description.para1}
+                        </p>
+                        <p className="text-gray-700 leading-relaxed">
+                          {product.description.para2}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-gray-700 leading-relaxed line-clamp-2">
+                        {product.description.para1}...
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() =>
+                      setIsDescriptionExpanded(!isDescriptionExpanded)
+                    }
+                    className="text-sm font-medium text-[#560000] hover:text-[#560000]/80 transition-colors flex items-center mt-3"
+                  >
+                    {isDescriptionExpanded ? "Read less" : "Read more"}
+                    <ChevronRight
+                      className={`h-4 w-4 ml-1 transition-transform ${
+                        isDescriptionExpanded ? "rotate-90" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Product Highlights / Tags */}
+                <div className="mb-6">
+                  <h2 className="font-semibold text-lg mb-3 text-gray-800">
+                    Highlights
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "Bestseller",
+                      "Eggless Option",
+                      "100% Veg",
+                      "No Preservatives",
+                    ].map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-[#560000]/10 text-[#560000] px-4 py-1.5 rounded-full text-sm font-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ingredients Preview */}
+                <div>
+                  <h2 className="font-semibold text-lg mb-3 text-gray-800">
+                    Ingredients
+                  </h2>
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <span className="bg-gray-100 px-3 py-2 rounded-full flex items-center text-sm hover:bg-gray-200 transition-colors cursor-pointer">
+                      <Coffee className="h-4 w-4 mr-2 text-[#560000]" />
+                      Cocoa
+                    </span>
+                    <span className="bg-gray-100 px-3 py-2 rounded-full flex items-center text-sm hover:bg-gray-200 transition-colors cursor-pointer">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="mr-2 text-[#560000]"
+                      >
+                        <path d="M10.5 2.5a8 8 0 0 0-7 7L2 22l20-5.5V9.5a8 8 0 0 0-7-7Z" />
+                        <path d="M8.5 15 7 22" />
+                        <path d="M14 13l-1 9" />
+                        <path d="M20 11.5 19 16" />
+                      </svg>
+                      Cheese
+                    </span>
+                    <span className="bg-gray-100 px-3 py-2 rounded-full flex items-center text-sm hover:bg-gray-200 transition-colors cursor-pointer">
+                      <Apple className="h-4 w-4 mr-2 text-[#560000]" />
+                      Strawberry
+                    </span>
+                    <span className="bg-gray-100 px-3 py-2 rounded-full flex items-center text-sm hover:bg-gray-200 transition-colors cursor-pointer">
+                      <Egg className="h-4 w-4 mr-2 text-[#560000]" />
+                      Eggless
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right column (Weight, Price, Add to Cart) - only on md and up */}
+            <div className="hidden md:flex md:w-1/3 flex-col gap-5 mt-4">
+              {/* Card 1: Order Type, Select Weight/Quantity, Price, Add to Cart */}
+              <div className="w-full bg-white rounded-3xl p-7 flex flex-col gap-5 h-fit shadow-sm">
+                {/* Price display */}
+                <div className="flex items-baseline gap-3">
+                  <h2 className="text-3xl font-bold text-black">
+                    ₹{Math.round(totalPrice)}
+                  </h2>
+                  {totalPrice > 500 && (
+                    <p className="text-gray-400 line-through text-lg">
+                      ₹{Math.round(totalPrice * 1.1)}
+                    </p>
+                  )}
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-gray-100 w-full"></div>
+
+                {/* Order Type */}
+                <div>
+                  <h2 className="text-gray-500 text-sm mb-3">Order Type</h2>
+                  <div className="flex gap-3 p-1 bg-gray-100 rounded-xl">
                     <button
-                      onClick={() => setPieceQuantity(pieceQuantity + 1)}
-                      className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg font-bold"
-                      aria-label="Increase quantity"
+                      onClick={() => setOrderType("kg")}
+                      className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all ${
+                        orderType === "kg"
+                          ? "bg-white text-[#560000] shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
                     >
-                      +
+                      By Weight
+                    </button>
+                    <button
+                      onClick={() => setOrderType("piece")}
+                      className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all ${
+                        orderType === "piece"
+                          ? "bg-white text-[#560000] shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      By Piece
                     </button>
                   </div>
                 </div>
-              )}
-              {/* Price and Add to Cart */}
-              <div className="flex flex-col gap-4">
-                <div>
-                  <p className="text-gray-500 text-sm">Total Price</p>
-                  <p className="text-xl font-bold">₹{Math.round(totalPrice)}</p>
+
+                {/* Weight/Quantity Selection */}
+                {orderType === "kg" ? (
+                  <div>
+                    <h2 className="text-gray-500 text-sm mb-3">
+                      Select Weight
+                    </h2>
+                    <div className="grid grid-cols-3 gap-2">
+                      {weightOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => setSelectedWeight(option.value)}
+                          className={`py-3 rounded-xl text-sm transition-all ${
+                            selectedWeight === option.value
+                              ? "bg-[#560000] text-white font-medium"
+                              : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h2 className="text-gray-500 text-sm mb-3">
+                      Select Quantity
+                    </h2>
+                    <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
+                      <button
+                        onClick={() =>
+                          setPieceQuantity(Math.max(1, pieceQuantity - 1))
+                        }
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${
+                          pieceQuantity > 1
+                            ? "bg-[#560000] text-white shadow-sm"
+                            : "text-gray-300 cursor-not-allowed"
+                        }`}
+                        disabled={pieceQuantity <= 1}
+                        aria-label="Decrease quantity"
+                      >
+                        -
+                      </button>
+                      <span className="text-xl font-medium text-gray-900">
+                        {pieceQuantity}
+                      </span>
+                      <button
+                        onClick={() => setPieceQuantity(pieceQuantity + 1)}
+                        className="w-9 h-9 rounded-lg bg-[#560000] text-white flex items-center justify-center text-lg shadow-sm"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Delivery estimate */}
+                <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
+                  <Truck className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm text-gray-900 font-medium">
+                      Delivery Today
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Order within 2 hrs 30 mins
+                    </p>
+                  </div>
                 </div>
+
+                {/* Add to Cart button */}
                 <button
                   onClick={handleAddToCart}
-                  className="bg-amber-800 text-white rounded-full px-6 py-3 flex items-center gap-2 w-full justify-center"
+                  className="bg-[#560000] text-white rounded-xl px-6 py-4 flex items-center justify-center font-medium text-base hover:bg-[#560000]/90 transition-all"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="mr-1"
-                  >
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                  </svg>
-                  <span className="font-medium">Add to Cart</span>
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Add to Cart
                 </button>
               </div>
-            </div>
-            {/* Card 2: Nutrition Info (move to right section on desktop) */}
-            <div className="p-6 bg-white rounded-2xl shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                Macronutrients Breakdown
-              </h2>
-              <div>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-gray-500">Calories</p>
-                    <p className="text-3xl font-bold text-gray-800">360 Cal</p>
-                  </div>
-                  <div className="text-sm font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-lg">
-                    Net wt: 100 g
-                  </div>
-                </div>
-                <hr className="my-4 border-gray-200" />
-                <div className="space-y-3 text-gray-700">
+
+              {/* Card 2: Nutrition Info (move to right section on desktop) */}
+              <div className="p-6 bg-white rounded-2xl shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  Macronutrients Breakdown
+                </h2>
+                <div>
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Dumbbell className="w-5 h-5" />
-                      <span>Proteins</span>
+                    <div>
+                      <p className="text-sm text-gray-500">Calories</p>
+                      <p className="text-3xl font-bold text-gray-800">
+                        360 Cal
+                      </p>
                     </div>
-                    <span>3.2 g</span>
+                    <div className="text-sm font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-lg">
+                      Net wt: 100 g
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Droplet className="w-5 h-5" />
-                      <span>Fats</span>
+                  <hr className="my-4 border-gray-200" />
+                  <div className="space-y-3 text-gray-700">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Dumbbell className="w-5 h-5" />
+                        <span>Proteins</span>
+                      </div>
+                      <span>3.2 g</span>
                     </div>
-                    <span>18.0 g</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/svg/food/bread.svg"
-                        alt="Carbs"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5"
-                      />
-                      <span>Carbs</span>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Droplet className="w-5 h-5" />
+                        <span>Fats</span>
+                      </div>
+                      <span>18.0 g</span>
                     </div>
-                    <span>46.0 g</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Candy className="w-5 h-5" />
-                      <span>Sugars</span>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/svg/food/bread.svg"
+                          alt="Carbs"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                        <span>Carbs</span>
+                      </div>
+                      <span>46.0 g</span>
                     </div>
-                    <span>34.0 g</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Wheat className="w-5 h-5" />
-                      <span>Fiber</span>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Candy className="w-5 h-5" />
+                        <span>Sugars</span>
+                      </div>
+                      <span>34.0 g</span>
                     </div>
-                    <span>0.6 g</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Shell className="w-5 h-5" />
-                      <span>Sodium</span>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Wheat className="w-5 h-5" />
+                        <span>Fiber</span>
+                      </div>
+                      <span>0.6 g</span>
                     </div>
-                    <span>250 mg</span>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Shell className="w-5 h-5" />
+                        <span>Sodium</span>
+                      </div>
+                      <span>250 mg</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Price and Add to Cart - Sticky at bottom for screens < 767px */}
-        <div className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between z-40 md:hidden">
-          <div>
-            <p className="text-gray-500 text-sm">Total Price</p>
-            <p className="text-xl font-bold">₹{Math.round(totalPrice)}</p>
-          </div>
-          <button
-            onClick={handleAddToCart}
-            className="bg-amber-800 text-white rounded-full px-6 py-3 flex items-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-1"
+          <CakeDeliveryCard />
+          {/* Price and Add to Cart - Sticky at bottom for screens < 767px */}
+          <div className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between z-40 md:hidden">
+            <div>
+              <p className="text-gray-500 text-sm">Total Price</p>
+              <p className="text-xl font-bold text-gray-900">
+                ₹{Math.round(totalPrice)}
+              </p>
+            </div>
+            <button
+              onClick={handleAddToCart}
+              className="bg-[#560000] text-white rounded-full px-6 py-3 flex items-center gap-2"
             >
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            <span className="font-medium">Add to Cart</span>
-          </button>
+              <ShoppingCart className="h-5 w-5" />
+              <span className="font-medium">Add to Cart</span>
+            </button>
+          </div>
+          {/* Add padding at the bottom to account for the sticky button on mobile only */}
+          <div className="h-24 md:h-0"></div>
         </div>
-
-        {/* Add padding at the bottom to account for the sticky button on mobile only */}
-        <div className="h-24 md:h-0"></div>
       </div>
-    </div>
+      <Toaster />
+    </>
   );
 }
