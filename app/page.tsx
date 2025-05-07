@@ -170,7 +170,7 @@ export default function Home() {
           <div className="hidden lg:block px-4 md:px-6 lg:px-8 py-6 md:py-8">
             <div className="rounded-3xl overflow-hidden shadow-md">
               <Image
-                src="/images/duchess-pastries-banner.png"
+                src="/images/banner/footer/duchess-pastries-banner.png"
                 alt="Why we are the best - Handcrafted fresh daily, delivered with care, affordable prices, and loved by thousands"
                 width={1280}
                 height={320}
