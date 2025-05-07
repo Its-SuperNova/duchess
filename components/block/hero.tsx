@@ -21,16 +21,16 @@ const categories = [
 
 // New arrays for hero images
 const heroMobileImages = [
-  "/images/banner/hero/cake-mobile.png",
-  "/images/banner/hero/cookies-mobile.png",
-  "/images/banner/hero/cupcake-mobile.png",
-  "/images/banner/hero/sweets-mobile.png",
+  "/images/banner/Hero/cake-mobile.png",
+  "/images/banner/Hero/cookies-mobile.png",
+  "/images/banner/Hero/cupcake-mobile.png",
+  "/images/banner/Hero/sweets-mobile.png",
 ];
 const heroDesktopImages = [
-  "/images/banner/hero/cake.png",
-  "/images/banner/hero/cookies.png",
-  "/images/banner/hero/cupcake.png",
-  "/images/banner/hero/sweets.png",
+  "/images/banner/Hero/cake.png",
+  "/images/banner/Hero/cookies.png",
+  "/images/banner/Hero/cupcake.png",
+  "/images/banner/Hero/sweets.png",
 ];
 
 const Hero = () => {
