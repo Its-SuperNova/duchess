@@ -1,14 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import { FaStar, FaHeart, FaRegHeart, FaShare } from "react-icons/fa"
-import { BsArrowLeft } from "react-icons/bs"
-import { useParams, useRouter } from "next/navigation"
-import { useFavorites, type Product } from "@/context/favorites-context"
-import { useCart } from "@/context/cart-context"
-import { useEffect } from "react"
-
+import { useState } from "react";
+import Image from "next/image";
+import { FaStar, FaHeart, FaRegHeart, FaShare } from "react-icons/fa";
+import { BsArrowLeft } from "react-icons/bs";
+import { useParams, useRouter } from "next/navigation";
+import { useFavorites, type Product } from "@/context/favorites-context";
+import { useCart } from "@/context/cart-context";
+import { useEffect } from "react";
+import {
+  Shell,
+  Candy,
+  Dumbbell,
+  Droplet,
+  Wheat,
+  CircleDot,
+} from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Flame,
+  Gift,
+  MessageSquare,
+  Pencil,
+  Utensils,
+  Truck,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 // Mock product data (in a real app, this would come from an API or database)
 const productData = [
   {
@@ -287,7 +306,7 @@ const productData = [
       "/layered-strawberry-cream.png",
     ],
   },
-]
+];
 
 // Weight options
 const weightOptions = [
@@ -296,42 +315,57 @@ const weightOptions = [
   { value: 1.5, label: "1.5 Kg" },
   { value: 2, label: "2 Kg" },
   { value: 4, label: "4 Kg" },
-]
+];
 
 export default function ProductPage() {
-  const router = useRouter()
-  const params = useParams()
-  const productId = Number(params?.id)
+  const router = useRouter();
+  const params = useParams();
+  const productId = Number(params?.id);
 
   // Find the product
-  const product = productData.find((p) => p.id === productId)
+  const product = productData.find((p) => p.id === productId);
 
   // If product not found
   if (!product) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center h-screen ">
         <h1 className="text-2xl font-bold mb-4">Product not found</h1>
-        <button onClick={() => router.push("/")} className="bg-primary text-white px-4 py-2 rounded-lg">
+        <button
+          onClick={() => router.push("/")}
+          className="bg-primary text-white px-4 py-2 rounded-lg"
+        >
           Go Back Home
         </button>
       </div>
-    )
+    );
   }
 
-  const { addToCart } = useCart()
+  const { addToCart } = useCart();
 
   // State for selected weight and main image
-  const [selectedWeight, setSelectedWeight] = useState<number>(1)
-  const [mainImage, setMainImage] = useState(product.imageUrl)
-  const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites()
-  const [isLiked, setIsLiked] = useState(isFavorite(product.id))
+  const [selectedWeight, setSelectedWeight] = useState<number>(1);
+  const [mainImage, setMainImage] = useState(product.imageUrl);
+  const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites();
+  const [isLiked, setIsLiked] = useState(isFavorite(product.id));
+
+  // Add state for order type and piece quantity
+  const [orderType, setOrderType] = useState<"kg" | "piece">("kg");
+  const [pieceQuantity, setPieceQuantity] = useState(1);
+
+  // Add state for cake text and checkbox
+  const [addCakeText, setAddCakeText] = useState(false);
+  const [cakeText, setCakeText] = useState("");
+  const maxCakeTextLength = 10;
 
   useEffect(() => {
-    setIsLiked(isFavorite(product.id))
-  }, [isFavorite, product.id])
+    setIsLiked(isFavorite(product.id));
+  }, [isFavorite, product.id]);
 
   // Calculate price based on weight
-  const totalPrice = product.price * selectedWeight
+  const totalPrice =
+    orderType === "kg"
+      ? product.price * selectedWeight
+      : product.price * pieceQuantity;
 
   // Handle favorite toggle
   const handleFavoriteToggle = () => {
@@ -343,16 +377,16 @@ export default function ProductPage() {
       isVeg: product.isVeg,
       description: product.description,
       rating: product.rating,
-    }
+    };
 
     if (isLiked) {
-      removeFromFavorites(product.id)
-      setIsLiked(false)
+      removeFromFavorites(product.id);
+      setIsLiked(false);
     } else {
-      addToFavorites(productData)
-      setIsLiked(true)
+      addToFavorites(productData);
+      setIsLiked(true);
     }
-  }
+  };
 
   // Handle add to cart
   const handleAddToCart = () => {
@@ -361,124 +395,404 @@ export default function ProductPage() {
       name: product.name,
       price: product.price,
       image: product.imageUrl,
-      quantity: 1,
-      weight: selectedWeight,
-    })
+      quantity: orderType === "kg" ? 1 : pieceQuantity,
+      weight: orderType === "kg" ? selectedWeight : 1,
+      category: product.category,
+      variant: orderType === "kg" ? "Regular" : "Piece",
+      ...(addCakeText && cakeText ? { cakeText } : {}),
+    });
 
     // Show a toast or notification here
-    alert(`Added ${product.name} to cart!`)
-  }
+    alert(`Added ${product.name} to cart!`);
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Top navigation */}
-      <div className="relative">
-        {/* Hero Image */}
-        <div className="relative h-[350px] w-full bg-gray-200">
-          <Image src={mainImage || "/placeholder.svg"} alt={product.name} fill priority className="object-cover" />
-
-          {/* Nav buttons */}
-          <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
-            <button
-              onClick={() => router.back()}
-              className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md"
-            >
-              <BsArrowLeft className="text-gray-800" size={20} />
-            </button>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleFavoriteToggle}
-                className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md"
-              >
-                {isLiked ? (
-                  <FaHeart className="text-red-500" size={20} />
-                ) : (
-                  <FaRegHeart className="text-gray-800" size={20} />
-                )}
-              </button>
-
-              <button className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md">
-                <FaShare className="text-gray-800" size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Image thumbnails */}
-        <div className="absolute bottom-3 left-0 right-0 px-3">
-          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 px-1">
-            {product.images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setMainImage(image)}
-                className={`w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 ${
-                  mainImage === image ? "border-primary" : "border-white"
-                }`}
-              >
+    <div className="bg-[#f5f5f5]">
+      <div className="max-w-[1300px] flex flex-col min-h-screen mb-20 mx-4">
+        {/* Main content: two columns on desktop, one column on mobile */}
+        <div className="flex flex-col md:flex-row md:gap-8 md:p-8 flex-1">
+          {/* Left column */}
+          <div className="md:w-2/3 flex flex-col gap-6">
+            {/* Top navigation and Hero Image */}
+            <div className="relative mt-4 rounded-2xl overflow-hidden">
+              {/* Hero Image */}
+              <div className="relative h-[350px] lg:h-[450px] w-full rounded-2xl overflow-hidden">
                 <Image
-                  src={image || "/placeholder.svg"}
-                  alt={`${product.name} thumbnail ${index + 1}`}
-                  width={64}
-                  height={64}
-                  className="object-cover w-full h-full"
+                  src={mainImage || "/placeholder.svg"}
+                  alt={product.name}
+                  fill
+                  priority
+                  className="object-cover rounded-2xl"
                 />
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Product Info Section */}
-      <div className="p-4 flex-1">
-        {/* Category and Rating */}
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-500">{product.category}</span>
-          <div className="flex items-center">
-            <FaStar className="text-yellow-400 mr-1" />
-            <span>{product.rating}</span>
-          </div>
-        </div>
+                {/* Nav buttons */}
+                <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
+                  <button
+                    onClick={() => router.back()}
+                    className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md"
+                  >
+                    <BsArrowLeft className="text-gray-800" size={20} />
+                  </button>
 
-        {/* Product Name and Veg Indicator */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">{product.name}</h1>
-          {product.isVeg && (
-            <div className="w-5 h-5 border-2 border-green-600 flex items-center justify-center rounded-sm">
-              <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleFavoriteToggle}
+                      className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md"
+                    >
+                      {isLiked ? (
+                        <FaHeart className="text-red-500" size={20} />
+                      ) : (
+                        <FaRegHeart className="text-gray-800" size={20} />
+                      )}
+                    </button>
+
+                    <button className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-md">
+                      <FaShare className="text-gray-800" size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Image thumbnails */}
+              <div className="absolute bottom-3 left-0 right-0 px-3">
+                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 px-1">
+                  {product.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setMainImage(image)}
+                      className={`w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 ${
+                        mainImage === image ? "border-primary" : "border-white"
+                      }`}
+                    >
+                      <Image
+                        src={image || "/placeholder.svg"}
+                        alt={`${product.name} thumbnail ${index + 1}`}
+                        width={64}
+                        height={64}
+                        className="object-cover w-full h-full"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Description */}
-        <div className="mb-6">
-          <h2 className="font-semibold text-lg mb-2">Description</h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-2 line-clamp-3">{product.description}</p>
-          <button className="text-amber-700 dark:text-amber-500 font-medium">Read more</button>
-        </div>
+            {/* Product Info Section */}
+            <div className="p-6  bg-white rounded-2xl shadow-sm">
+              {/* Category and Rating */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">{product.category}</span>
+                <div className="flex items-center">
+                  <FaStar className="text-yellow-400 mr-1" />
+                  <span>{product.rating}</span>
+                </div>
+              </div>
 
-        {/* Weight Selection */}
-        <div className="mb-6">
-          <h2 className="font-semibold text-lg mb-2">Select Weight</h2>
-          <div className="flex gap-3 flex-wrap">
-            {weightOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => setSelectedWeight(option.value)}
-                className={`px-4 py-2 rounded-lg border ${
-                  selectedWeight === option.value
-                    ? "bg-amber-800 text-white border-amber-800"
-                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
+              {/* Product Name and Veg Indicator */}
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">{product.name}</h1>
+                {product.isVeg && (
+                  <div className="w-5 h-5 border-2 border-green-600 flex items-center justify-center rounded-sm">
+                    <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              <div className="mb-6 mt-2">
+                <h2 className="font-semibold text-lg mb-2">Description</h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-2 line-clamp-3">
+                  {product.description}
+                </p>
+                <button className="text-amber-700 dark:text-amber-500 font-medium">
+                  Read more
+                </button>
+              </div>
+
+              {/* Product Highlights / Tags */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {[
+                  "Bestseller",
+                  "Eggless Option",
+                  "100% Veg",
+                  "No Preservatives",
+                ].map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* Ingredients Preview */}
+              <div className="flex flex-wrap gap-2 mt-3 items-center">
+                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
+                  <span className="mr-1">🍫</span>Cocoa
+                </span>
+                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
+                  <span className="mr-1">🧀</span>Cheese
+                </span>
+                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
+                  <span className="mr-1">🍓</span>Strawberry
+                </span>
+                <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center text-xs">
+                  <span className="mr-1">🥚</span>Eggless
+                </span>
+              </div>
+            </div>
+
+            <Card className="w-full bg-white shadow-md rounded-xl">
+              <div className="pt-6"></div>
+              <CardContent className="grid gap-6">
+                {/* Two-column layout for desktop, stack on mobile */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left column - Delivery Options */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Delivery Options</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2">
+                        <Check className="h-5 w-5 text-green-500 mt-0.5" />
+                        <span>Same-day delivery available</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
+                        <span>Schedule for later</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Truck className="h-5 w-5 text-gray-500 mt-0.5" />
+                        <span className="font-medium">
+                          Estimated delivery: Today, 5-7pm
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right column - Customization */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Customization</h3>
+                    <div className="grid gap-3">
+                      <div className="flex items-start gap-2">
+                        <Pencil className="h-5 w-5 text-gray-500 mt-0.5" />
+                        <span>Add text on cake</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Flame className="h-5 w-5 text-gray-500 mt-0.5" />
+                        <span>Add candles</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Utensils className="h-5 w-5 text-gray-500 mt-0.5" />
+                        <span>Add knife</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MessageSquare className="h-5 w-5 text-gray-500 mt-0.5" />
+                        <span>Add message card</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Separator spanning full width */}
+                <Separator />
+
+                {/* Offers section at the bottom */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">Offers</h3>
+                  <div className="flex items-start gap-2 bg-green-50 p-3 rounded-md">
+                    <Gift className="h-5 w-5 text-green-600 mt-0.5" />
+                    <span className="font-medium text-green-700">
+                      10% off on orders above ₹1000
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right column (Weight, Price, Add to Cart) - only on md and up */}
+          <div className="hidden md:flex md:w-1/3 flex-col gap-6">
+            {/* Card 1: Order Type, Select Weight/Quantity, Price, Add to Cart */}
+            <div className="w-full bg-white dark:bg-gray-900 rounded-2xl p-6 flex flex-col gap-6 h-fit mt-8 shadow-sm">
+              {/* Order Type */}
+              <div className="mb-4">
+                <h2 className="font-semibold text-lg mb-2">Order Type</h2>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="radio"
+                      name="orderType"
+                      value="kg"
+                      checked={orderType === "kg"}
+                      onChange={() => setOrderType("kg")}
+                      className="accent-amber-800"
+                    />
+                    By Kg
+                  </label>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="radio"
+                      name="orderType"
+                      value="piece"
+                      checked={orderType === "piece"}
+                      onChange={() => setOrderType("piece")}
+                      className="accent-amber-800"
+                    />
+                    By Piece
+                  </label>
+                </div>
+              </div>
+              {/* Weight/Quantity Selection */}
+              {orderType === "kg" ? (
+                <div className="mb-6">
+                  <h2 className="font-semibold text-lg mb-2">Select Weight</h2>
+                  <div className="flex gap-3 flex-wrap">
+                    {weightOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setSelectedWeight(option.value)}
+                        className={`px-4 py-2 rounded-lg border ${
+                          selectedWeight === option.value
+                            ? "bg-amber-800 text-white border-amber-800"
+                            : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-6">
+                  <h2 className="font-semibold text-lg mb-2">
+                    Select Quantity
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() =>
+                        setPieceQuantity(Math.max(1, pieceQuantity - 1))
+                      }
+                      className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg font-bold"
+                      aria-label="Decrease quantity"
+                    >
+                      -
+                    </button>
+                    <span className="text-lg font-semibold w-8 text-center">
+                      {pieceQuantity}
+                    </span>
+                    <button
+                      onClick={() => setPieceQuantity(pieceQuantity + 1)}
+                      className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg font-bold"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* Price and Add to Cart */}
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="text-gray-500 text-sm">Total Price</p>
+                  <p className="text-xl font-bold">₹{Math.round(totalPrice)}</p>
+                </div>
+                <button
+                  onClick={handleAddToCart}
+                  className="bg-amber-800 text-white rounded-full px-6 py-3 flex items-center gap-2 w-full justify-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-1"
+                  >
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  </svg>
+                  <span className="font-medium">Add to Cart</span>
+                </button>
+              </div>
+            </div>
+            {/* Card 2: Nutrition Info (move to right section on desktop) */}
+            <div className="p-6 bg-white rounded-2xl shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                Macronutrients Breakdown
+              </h2>
+              <div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-gray-500">Calories</p>
+                    <p className="text-3xl font-bold text-gray-800">360 Cal</p>
+                  </div>
+                  <div className="text-sm font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-lg">
+                    Net wt: 100 g
+                  </div>
+                </div>
+                <hr className="my-4 border-gray-200" />
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Dumbbell className="w-5 h-5" />
+                      <span>Proteins</span>
+                    </div>
+                    <span>3.2 g</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Droplet className="w-5 h-5" />
+                      <span>Fats</span>
+                    </div>
+                    <span>18.0 g</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/svg/food/bread.svg"
+                        alt="Carbs"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                      <span>Carbs</span>
+                    </div>
+                    <span>46.0 g</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Candy className="w-5 h-5" />
+                      <span>Sugars</span>
+                    </div>
+                    <span>34.0 g</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Wheat className="w-5 h-5" />
+                      <span>Fiber</span>
+                    </div>
+                    <span>0.6 g</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Shell className="w-5 h-5" />
+                      <span>Sodium</span>
+                    </div>
+                    <span>250 mg</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Price and Add to Cart - Sticky at bottom */}
-        <div className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between z-40">
+        {/* Price and Add to Cart - Sticky at bottom for screens < 767px */}
+        <div className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between z-40 md:hidden">
           <div>
             <p className="text-gray-500 text-sm">Total Price</p>
             <p className="text-xl font-bold">₹{Math.round(totalPrice)}</p>
@@ -507,9 +821,9 @@ export default function ProductPage() {
           </button>
         </div>
 
-        {/* Add padding at the bottom to account for the sticky button */}
-        <div className="h-24"></div>
+        {/* Add padding at the bottom to account for the sticky button on mobile only */}
+        <div className="h-24 md:h-0"></div>
       </div>
     </div>
-  )
+  );
 }
