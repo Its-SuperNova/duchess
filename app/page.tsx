@@ -179,11 +179,6 @@ export default function Home() {
               />
             </div>
           </div>
-
-          {/* Newsletter Subscription - only on home page - full width */}
-          <div className="w-full">
-            <NewsletterSubscription />
-          </div>
         </div>
       </div>
     </div>

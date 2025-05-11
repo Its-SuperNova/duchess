@@ -13,19 +13,19 @@ import {
   Egg,
   ChevronRight,
   ShoppingCart,
-  CheckCircle2,
   Droplet,
-  CircleDot,
   Dumbbell,
   Candy,
   Wheat,
   Shell,
+  Package,
+  AlertCircle,
 } from "lucide-react";
 import CakeDeliveryCard from "./cake-delivery-card";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
-// Enhanced product data with two-paragraph descriptions
+// Enhanced product data with two-paragraph descriptions and stock information
 const productData = [
   {
     id: 1,
@@ -35,6 +35,7 @@ const productData = [
     price: 499,
     category: "Cake",
     isVeg: true,
+    stock: 15, // Added stock information
     description: {
       para1:
         "Layered with creamy cheesecake, made with cocoa, cream cheese, and vanilla. The perfect balance of sweetness with a hint of cocoa flavor.",
@@ -62,6 +63,7 @@ const productData = [
     price: 299,
     category: "Pastry",
     isVeg: true,
+    stock: 8,
     description: {
       para1:
         "Crisp choux pastry filled with rich chocolate cream and topped with chocolate glaze. Hand-crafted with premium ingredients.",
@@ -89,6 +91,7 @@ const productData = [
     price: 549,
     category: "Cake",
     isVeg: true,
+    stock: 3,
     description: {
       para1:
         "Creamy cheesecake with a graham cracker crust topped with fresh strawberry compote. Made with premium cream cheese.",
@@ -116,6 +119,7 @@ const productData = [
     price: 349,
     category: "Tart",
     isVeg: true,
+    stock: 0, // Out of stock
     description: {
       para1:
         "Buttery pastry shell filled with tangy lemon curd and dusted with powdered sugar. The perfect balance of sweet and tart flavors.",
@@ -143,6 +147,7 @@ const productData = [
     price: 399,
     category: "Macaron",
     isVeg: true,
+    stock: 20,
     description: {
       para1:
         "Delicate almond meringue cookies filled with raspberry buttercream. Light, airy cookies with a chewy center and crisp exterior.",
@@ -170,6 +175,7 @@ const productData = [
     price: 249,
     category: "Cookie",
     isVeg: true,
+    stock: 25,
     description: {
       para1:
         "Classic cookies loaded with premium chocolate chips and baked to golden perfection. Crisp edges with a soft, chewy center.",
@@ -197,6 +203,7 @@ const productData = [
     price: 449,
     category: "Cake",
     isVeg: true,
+    stock: 12,
     description: {
       para1:
         "Light and fluffy vanilla sponge cake with smooth buttercream frosting. Made with Madagascar vanilla beans for exceptional flavor.",
@@ -224,6 +231,7 @@ const productData = [
     price: 299,
     category: "Brownie",
     isVeg: true,
+    stock: 18,
     description: {
       para1:
         "Rich, fudgy chocolate brownie with a crackly top and gooey center. Made with premium Belgian chocolate for an intense chocolate experience.",
@@ -251,6 +259,7 @@ const productData = [
     price: 279,
     category: "Cupcake",
     isVeg: true,
+    stock: 9,
     description: {
       para1:
         "Moist vanilla cupcake topped with strawberry buttercream and fresh strawberry. Made with real strawberries for natural flavor and color.",
@@ -278,6 +287,7 @@ const productData = [
     price: 349,
     category: "Bread",
     isVeg: true,
+    stock: 5,
     description: {
       para1:
         "Artisanal sourdough bread with a crispy crust and chewy interior. Made with a 100-year-old starter for complex flavor.",
@@ -305,6 +315,7 @@ const productData = [
     price: 599,
     category: "Cake",
     isVeg: true,
+    stock: 2, // Low stock
     description: {
       para1:
         "Rich chocolate cake with almond flour, topped with ganache and toasted almonds. Gluten-friendly and incredibly moist.",
@@ -332,6 +343,7 @@ const productData = [
     price: 799,
     category: "Cake",
     isVeg: true,
+    stock: 7,
     description: {
       para1:
         "Festive layered cake with colorful sprinkles, perfect for special occasions. Three layers of vanilla sponge with buttercream frosting.",
@@ -450,6 +462,16 @@ export default function ProductPage() {
 
   // Handle add to cart
   const handleAddToCart = () => {
+    if (product.stock === 0) {
+      toast({
+        title: "Out of Stock",
+        description: "This product is currently unavailable",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
     addToCart({
       id: product.id,
       name: product.name,
@@ -460,6 +482,90 @@ export default function ProductPage() {
       category: product.category,
       variant: orderType === "kg" ? "Regular" : "Piece",
     });
+  };
+
+  // Function to render stock status
+  const renderStockStatus = () => {
+    if (product.stock === 0) {
+      return (
+        <div className="flex items-center gap-1.5 text-red-600 mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <span className="text-sm font-medium">Out of Stock</span>
+        </div>
+      );
+    } else if (product.stock <= 3) {
+      return (
+        <div className="flex items-center gap-1.5 text-amber-600 mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <span className="text-sm font-medium">
+            Only {product.stock} left in stock - order soon
+          </span>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex items-center gap-1.5 text-green-600 mt-2">
+          <Package className="h-4 w-4" />
+          <span className="text-sm font-medium">
+            In Stock ({product.stock} available)
+          </span>
+        </div>
+      );
+    }
+  };
+
+  // Function to calculate delivery time based on stock status
+  const calculateDeliveryTime = () => {
+    // Base delivery times for different areas (in minutes)
+    const baseDeliveryTimes = {
+      "New Delhi": 60,
+      Mumbai: 90,
+      Bangalore: 75,
+      Pune: 80,
+    };
+
+    // Get delivery time for selected address
+    const addresses = [
+      { label: "Home", address: "123 Main St, New Delhi, 110001" },
+      { label: "Work", address: "456 Park Ave, Mumbai, 400001" },
+      { label: "Parents", address: "789 Lake Rd, Bangalore, 560001" },
+      { label: "Other", address: "101 Hilltop, Pune, 411001" },
+    ];
+
+    // Default to first address if none selected
+    const selectedAddress = addresses[0];
+
+    // Determine city from address
+    const city = selectedAddress.address.split(",")[1]?.trim() || "New Delhi";
+    // Get base delivery time for the city
+    const baseTime = (city in baseDeliveryTimes ? baseDeliveryTimes[city as keyof typeof baseDeliveryTimes] : 60); // Default to 60 minutes if city not found
+
+    // Add 4 hours (240 minutes) if product is out of stock
+    const additionalTime = product.stock === 0 ? 240 : 0;
+
+    // Total delivery time in minutes
+    const totalMinutes = baseTime + additionalTime;
+
+    // Convert to hours and minutes
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    // Format the time string
+    let timeString = "";
+    if (hours > 0) {
+      timeString += `${hours} hr${hours > 1 ? "s" : ""}`;
+    }
+    if (minutes > 0) {
+      timeString += `${hours > 0 ? " " : ""}${minutes} min${
+        minutes > 1 ? "s" : ""
+      }`;
+    }
+
+    return {
+      totalMinutes,
+      timeString,
+      isDelayed: product.stock === 0,
+    };
   };
 
   return (
@@ -477,7 +583,8 @@ export default function ProductPage() {
                   <Image
                     src={
                       mainImage ||
-                      "/placeholder.svg?height=450&width=800&query=red velvet cake"
+                      "/placeholder.svg?height=450&width=800&query=red velvet cake" ||
+                      "/placeholder.svg"
                     }
                     alt={product.name}
                     fill
@@ -529,7 +636,8 @@ export default function ProductPage() {
                         <Image
                           src={
                             image ||
-                            "/placeholder.svg?height=64&width=64&query=cake thumbnail"
+                            "/placeholder.svg?height=64&width=64&query=cake thumbnail" ||
+                            "/placeholder.svg"
                           }
                           alt={`${product.name} thumbnail ${index + 1}`}
                           width={64}
@@ -558,7 +666,7 @@ export default function ProductPage() {
                 </div>
 
                 {/* Product Name and Veg Indicator */}
-                <div className="flex justify-between items-center mb-5">
+                <div className="flex justify-between items-center mb-2">
                   <h1 className="text-3xl font-bold text-gray-900">
                     {product.name}
                   </h1>
@@ -569,8 +677,11 @@ export default function ProductPage() {
                   )}
                 </div>
 
+                {/* Stock Status */}
+                {renderStockStatus()}
+
                 {/* Description - Modified to show two paragraphs with initial truncation */}
-                <div className="mb-7 mt-2">
+                <div className="mb-7 mt-4">
                   <h2 className="font-semibold text-lg mb-3 text-gray-800">
                     Description
                   </h2>
@@ -671,20 +782,23 @@ export default function ProductPage() {
             </div>
 
             {/* Right column (Weight, Price, Add to Cart) - only on md and up */}
-            <div className="hidden md:flex md:w-1/3 flex-col gap-5 mt-4">
+            <div className="w-full md:w-1/3 flex flex-col gap-5 mt-4">
               {/* Card 1: Order Type, Select Weight/Quantity, Price, Add to Cart */}
               <div className="w-full bg-white rounded-3xl p-7 flex flex-col gap-5 h-fit shadow-sm">
                 {/* Price display */}
-                <div className="flex items-baseline gap-3">
-                  <h2 className="text-3xl font-bold text-black">
+                <div className="flex items-baseline gap-3 md:flex">
+                  <h2 className="text-3xl font-bold text-black md:block hidden">
                     ₹{Math.round(totalPrice)}
                   </h2>
                   {totalPrice > 500 && (
-                    <p className="text-gray-400 line-through text-lg">
+                    <p className="text-gray-400 line-through text-lg md:block hidden">
                       ₹{Math.round(totalPrice * 1.1)}
                     </p>
                   )}
                 </div>
+
+                {/* Stock Status in Card */}
+                <div className="hidden md:block">{renderStockStatus()}</div>
 
                 {/* Divider */}
                 <div className="h-px bg-gray-100 w-full"></div>
@@ -773,25 +887,50 @@ export default function ProductPage() {
                 )}
 
                 {/* Delivery estimate */}
-                <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
-                  <Truck className="h-5 w-5 text-gray-400" />
+                <div
+                  className={`flex items-center gap-3 p-4 rounded-xl ${
+                    calculateDeliveryTime().isDelayed
+                      ? "bg-amber-50"
+                      : "bg-gray-50"
+                  }`}
+                >
+                  <Truck
+                    className={`h-5 w-5 ${
+                      calculateDeliveryTime().isDelayed
+                        ? "text-amber-500"
+                        : "text-gray-400"
+                    }`}
+                  />
                   <div>
                     <p className="text-sm text-gray-900 font-medium">
-                      Delivery Today
+                      {calculateDeliveryTime().isDelayed
+                        ? "Extended Delivery Time"
+                        : "Delivery Today"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Order within 2 hrs 30 mins
+                      {calculateDeliveryTime().isDelayed
+                        ? `Estimated delivery in ${
+                            calculateDeliveryTime().timeString
+                          } (additional 4 hrs for restocking)`
+                        : `Estimated delivery in ${
+                            calculateDeliveryTime().timeString
+                          }`}
                     </p>
                   </div>
                 </div>
 
-                {/* Add to Cart button */}
+                {/* Add to Cart button (hide on mobile) */}
                 <button
                   onClick={handleAddToCart}
-                  className="bg-[#560000] text-white rounded-xl px-6 py-4 flex items-center justify-center font-medium text-base hover:bg-[#560000]/90 transition-all"
+                  disabled={product.stock === 0}
+                  className={`text-white rounded-xl px-6 py-4 items-center justify-center font-medium text-base transition-all hidden md:flex ${
+                    product.stock === 0
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#560000] hover:bg-[#560000]/90"
+                  }`}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  Add to Cart
+                  {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
                 </button>
               </div>
 
@@ -867,7 +1006,7 @@ export default function ProductPage() {
               </div>
             </div>
           </div>
-          <CakeDeliveryCard />
+          <CakeDeliveryCard stock={product.stock} />
           {/* Price and Add to Cart - Sticky at bottom for screens < 767px */}
           <div className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between z-40 md:hidden">
             <div>
@@ -875,13 +1014,29 @@ export default function ProductPage() {
               <p className="text-xl font-bold text-gray-900">
                 ₹{Math.round(totalPrice)}
               </p>
+              {/* Mobile Stock Status */}
+              {product.stock === 0 && (
+                <p className="text-xs font-medium text-red-600">Out of Stock</p>
+              )}
+              {product.stock > 0 && product.stock <= 3 && (
+                <p className="text-xs font-medium text-amber-600">
+                  Only {product.stock} left
+                </p>
+              )}
             </div>
             <button
               onClick={handleAddToCart}
-              className="bg-[#560000] text-white rounded-full px-6 py-3 flex items-center gap-2"
+              disabled={product.stock === 0}
+              className={`rounded-full px-6 py-3 flex items-center gap-2 ${
+                product.stock === 0
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-[#560000] text-white"
+              }`}
             >
               <ShoppingCart className="h-5 w-5" />
-              <span className="font-medium">Add to Cart</span>
+              <span className="font-medium">
+                {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+              </span>
             </button>
           </div>
           {/* Add padding at the bottom to account for the sticky button on mobile only */}
